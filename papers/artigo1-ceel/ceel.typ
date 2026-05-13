@@ -175,7 +175,16 @@
     set math.equation(numbering: "(1)")
 
     // Ajustes de densidade do documento
-    set list(spacing: 1mm)
+    set list(
+		indent: 4mm,
+		body-indent: 0.25cm 
+	)
+
+    show list: it => {
+        set par(first-line-indent: 0mm)
+        it
+    }
+    
     set enum(numbering: "1)")
 
     show pad: it => {
