@@ -45,25 +45,27 @@ O xadrez ocupa, há décadas, um papel central na pesquisa em inteligência arti
 
 Marcos históricos como o Deep Blue evidenciaram a força de abordagens baseadas em busca altamente otimizada e conhecimento especializado de domínio @campbell2002deepblue. Em seguida, sistemas como o AlphaZero e projetos abertos como o Leela Chess Zero reforçaram a relevância de arquiteturas apoiadas em autojogo e redes neurais profundas @silver2017alphazero @lc0overview. Apesar dessas diferenças na camada de decisão, todos esses sistemas dependem de uma infraestrutura de geração de lances correta e eficiente.
 
+Em particular, a geração de lances para peças deslizantes — torres, bispos e damas — representa o gargalo central desse processo, pois o conjunto de casas atacadas depende dinamicamente da ocupação do tabuleiro ao longo de múltiplos raios de ataque. Esse é o problema que técnicas como os _magic bitboards_ buscam resolver de forma eficiente.
+
 Nesse contexto, este trabalho apresenta o desenvolvimento da ChessLib, uma biblioteca de xadrez implementada em Rust, com foco em eficiência, segurança de memória e organização modular. A biblioteca adota bitboards como estrutura principal de representação do tabuleiro e emprega magic bitboards para otimizar a geração de lances de peças deslizantes, explorando operações bitwise e acesso pré-computado a tabelas de ataque @bitboards @kannan2007magic.
 
 A proposta insere-se no contexto de bibliotecas de base para _engines_ de xadrez e ferramentas correlatas, priorizando uma infraestrutura reutilizável para futuras extensões, como mecanismos de busca, funções de avaliação e integração com agentes de inteligência artificial. Mais especificamente, o trabalho contribui com: a) a descrição da arquitetura da ChessLib e das decisões de implementação adotadas para representação do estado e geração de lances; b) a sistematização do uso de _bitboards_ e _magic bitboards_ em uma biblioteca escrita em Rust com foco em extensibilidade; e c) uma avaliação experimental baseada em _Perft_ e em comparação com implementações de referência, de modo a situar a ChessLib quanto ao custo computacional da geração de lances.
 
 = Trabalhos Relacionados
 
-O desenvolvimento de software para xadrez pode ser analisado, de forma geral, em duas frentes complementares. A primeira corresponde aos _engines_ completos, concebidos para selecionar lances e disputar partidas de forma autônoma. A segunda reúne bibliotecas de lógica de xadrez, voltadas à representação do estado do jogo, à aplicação de regras e à geração de lances. 
+O desenvolvimento de software para xadrez divide-se entre _engines_ completos, voltados à seleção autônoma de lances, e bibliotecas de lógica de xadrez, focadas na representação do estado do jogo e na geração de movimentos.
 
 == Engines de Xadrez de Alta Performance
 
-Entre as _engines_ open-source contemporâneas, o Stockfish destaca-se como uma das principais referências de desempenho, combinando busca baseada em poda alfa-beta com heurísticas avançadas e avaliação por redes neurais eficientes no formato NNUE @stockfishdocs. Em paralelo, o Leela Chess Zero (Lc0) representa a abordagem baseada em redes neurais profundas e autojogo, inspirada pela linha introduzida pelo AlphaZero @silver2017alphazero @lc0overview. Esses dois projetos ilustram paradigmas centrais da computação enxadrística atual e reforçam a importância da geração eficiente de lances como componente estrutural de sistemas competitivos. Além disso, a exploração de linguagens modernas para o desenvolvimento de _engines_ de alto desempenho não se restringe a implementações em C++ nem a fluxos de experimentação apoiados em Python: trabalhos recentes também investigam a linguagem Go como base para arquiteturas enxadrísticas modulares e competitivas, como exemplifica a _engine_ GoFish @gofish2024.
+Entre as _engines_ open-source contemporâneas, o Stockfish destaca-se como uma das principais referências de desempenho, combinando busca baseada em poda alfa-beta com heurísticas avançadas e avaliação por redes neurais eficientes no formato NNUE @stockfishdocs. Em paralelo, o Leela Chess Zero (Lc0) representa a abordagem baseada em redes neurais profundas e autojogo, inspirada pela linha introduzida pelo AlphaZero @silver2017alphazero @lc0overview. Esses dois projetos ilustram paradigmas centrais da computação enxadrística atual e reforçam a importância da geração eficiente de lances como componente estrutural de sistemas competitivos.
 
 == Bibliotecas de Lógica de Xadrez
 
 Além dos _engines_ completos, há bibliotecas especializadas na modelagem do jogo e na manipulação programática do tabuleiro. Essas bibliotecas são particularmente úteis em cenários de prototipagem, ensino, experimentação algorítmica e integração com aplicações maiores, como analisadores, interfaces gráficas, ferramentas de teste e sistemas de inteligência artificial.
 
-No ecossistema Python, a biblioteca "python-chess" tornou-se uma referência amplamente adotada por oferecer representação de posições, geração de lances, validação de legalidade e manipulação de formatos usuais do domínio enxadrístico @pythonchess. No entanto, por estar inserida em um ambiente interpretado, sua utilização em cenários de alta intensidade computacional tende a apresentar limitações de desempenho quando comparada a implementações em linguagens compiladas.
+No ecossistema Python, a biblioteca "python-chess" tornou-se uma referência amplamente adotada por oferecer representação de posições, geração de lances, validação de legalidade e manipulação de formatos usuais do domínio enxadrístico @pythonchess, embora sua inserção em um ambiente interpretado limite o desempenho em cenários de alta intensidade computacional.
 
-No ecossistema Rust, a biblioteca "chess" oferece uma referência importante de implementação eficiente para representação do tabuleiro e geração de lances, demonstrando a viabilidade de soluções de alto desempenho nesse ambiente @bray2024chess.
+No ecossistema Rust, bibliotecas como "chess" @bray2024chess e "shakmaty" @shakmatyreadme oferecem referências importantes de implementação eficiente para representação do tabuleiro e geração de lances, demonstrando a viabilidade de soluções de alto desempenho nesse ambiente.
 
 Nesse contexto, Rust oferece características particularmente relevantes para bibliotecas centrais de xadrez, como desempenho próximo ao de linguagens de sistema, controle explícito de memória e ausência de coletor de lixo, com garantias estáticas de segurança documentadas tanto em sua documentação oficial quanto em literatura acadêmica da ACM sobre a linguagem e seu uso em sistemas @rustbook @matsakis2014rustsafe.
 
@@ -83,6 +85,8 @@ A biblioteca adota bitboards como estrutura principal de representação. Nessa 
 )<Fig1>
 
 Na convenção utilizada, baseada em _Little-Endian File Mapping_, a casa "a1" corresponde ao bit menos significativo e "h8" ao mais significativo. A partir dessa organização, a posição pode ser descrita por múltiplos bitboards, tipicamente separados por tipo de peça e cor, além de estruturas agregadas para ocupação total, peças brancas e peças pretas. Essa organização, evidenciada na @Fig1, simplifica consultas de ocupação, detecção de ataques e aplicação de máscaras sobre regiões específicas do tabuleiro.
+
+Além dos bitboards de peças, a estrutura `Board` mantém informações auxiliares de estado: _hash_ de Zobrist para detecção de repetições e integração com tabelas de transposição, direitos de roque, casa de _en passant_, contador de semi-lances e bitboards incrementais de pinos e cheques. Essa organização permite que a geração de lances legais opere diretamente sobre estado pré-calculado, evitando recomputações custosas a cada consulta.
 
 == Geração de Lances
 
@@ -140,8 +144,15 @@ A implementação depende de três elementos principais:
 
     A etapa de inicialização consiste justamente em construir essas tabelas e validar números mágicos adequados para bispos e torres em cada uma das 64 casas. Embora essa fase seja relativamente trabalhosa, ela é executada apenas uma vez, deslocando o custo computacional para fora do caminho crítico da geração de lances.
 
-    Uma vez inicializado, o processo de geração de movimentos em tempo de execução é extremamente eficiente, consistindo em uma sequência linear de operações apresentadas na @talofa.
+    Na prática, a busca por uma constante mágica adequada para uma casa parte da geração de candidatos aleatórios, que são então aplicados sobre todas as combinações possíveis de bloqueadores definidas pela máscara dessa casa. Cada candidato é avaliado quanto à ausência de colisões no mapeamento resultante: caso duas configurações distintas de bloqueadores produzam o mesmo índice associado a conjuntos de ataque diferentes, o candidato é descartado e a busca prossegue. Após encontrar uma constante válida, a tabela de ataques correspondente é populada com os _bitboards_ resultantes. O processo completo de busca de um número mágico pode ser resumido pelo fluxo apresentado na @lofa.
 ]
+
+#figure(
+  image("./assets/lofa.drawio.svg", width: 62%),
+  caption: "Geração e validação de um número mágico",
+)<lofa>
+
+Uma vez inicializado, o processo de geração de movimentos em tempo de execução é extremamente eficiente, consistindo em uma sequência linear de operações apresentadas na @talofa.
 
 #figure(
   image("./assets/talofa.drawio.svg", width: 25%),
@@ -245,139 +256,42 @@ ChessLib-Simple e Python-Chess só foram incluídos na rodada da profundidade 4 
 
 == Posição Inicial
 
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: horizon,
-    table.header(
-        [Engine], 
-        [Tempo médio (ms)], 
-    ),
-    [ChessLib],          [1.5],
-    [Shakmaty],          [1.6],
-    [Chess],             [1.2],
-    [ChessLib-Simple],   [23.3],
-    [Stockfish via UCI], [161.4],
-    [Python-Chess],      [235.0],
-  ),
-  caption: [Benchmark na posição inicial para $d=4$],
-) <benchmark1>
+A @benchmark-inicial consolida os tempos médios obtidos na posição inicial para as profundidades $d=4$ a $d=7$.
 
 #figure(
   table(
-    columns: (1fr, 1fr),
+    columns: (1.4fr, 1fr, 1fr, 1fr, 1fr),
     align: horizon,
     table.header(
-        [Engine], 
-        [Tempo médio (ms)], 
+        [Engine],
+        [d=4 (ms)],
+        [d=5 (ms)],
+        [d=6 (ms)],
+        [d=7 (s)],
     ),
-    [ChessLib],          [14.4],
-    [Shakmaty],          [15.8],
-    [Chess],             [11.9],
-    [Stockfish via UCI], [173.8],
+    [ChessLib],          [1.5],   [14.4], [259.5], [7.467],
+    [Shakmaty],          [1.6],   [15.8], [350.2], [9.318],
+    [Chess],             [1.2],   [11.9], [241.9], [6.251],
+    [ChessLib-Simple],   [23.3],  [—],    [—],     [—],
+    [Stockfish via UCI], [161.4], [173.8],[500.9], [9.974],
+    [Python-Chess],      [235.0], [—],    [—],     [—],
   ),
-  caption: [Benchmark na posição inicial para $d=5$],
-) <benchmark2>
+  caption: [Benchmark na posição inicial para $d=4$ a $d=7$],
+) <benchmark-inicial>
 
+== Posições específicas
 
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: horizon,
-    table.header(
-        [Engine], 
-        [Tempo médio (ms)], 
-    ),
-    [ChessLib],          [259.5],
-    [Shakmaty],          [350.2],
-    [Chess],             [241.9],
-    [Stockfish via UCI], [500.9],
-  ),
-  caption: [Benchmark na posição inicial para $d=6$],
-) <benchmark3>
-
-
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: horizon,
-    table.header(
-        [Engine], 
-        [Tempo médio (s)], 
-    ),
-    [ChessLib],          [7.467],
-    [Shakmaty],          [9.318],
-    [Chess],             [6.251],
-    [Stockfish via UCI], [9.974],
-  ),
-  caption: [Benchmark na posição inicial para $d=7$],
-) <benchmark4>
-
-== Posição de capturas ($d=5$)
-
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: horizon,
-    table.header(
-        [Engine], 
-        [Tempo médio (ms)], 
-    ),
-    [ChessLib],          [142.5],
-    [Shakmaty],          [249.0],
-    [Chess],             [128.1],
-    [Stockfish via UCI], [445.1],
-  ),
-  caption: [Benchmark na posição de capturas para $d=5$],
-) <benchmark5>
-
-== Posição de promoções ($d=6$)
-
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: horizon,
-    table.header(
-        [Engine], 
-        [Tempo médio (ms)], 
-    ),
-    [ChessLib],          [195.4],
-    [Shakmaty],          [298.0],
-    [Chess],             [177.2],
-    [Stockfish via UCI], [570.0],
-  ),
-  caption: [Benchmark na posição de promoções para $d=6$],
-) <benchmark6>
-
-== Posição "Kiwipete" ($d=5$)
-
-#figure(
-  table(
-    columns: (1fr, 1fr),
-    align: horizon,
-    table.header(
-        [Engine], 
-        [Tempo médio (ms)], 
-    ),
-    [Chess],             [261.5],
-    [Shakmaty],          [537.3],
-    [ChessLib],          [282.9],
-    [Stockfish via UCI], [731.7],
-  ),
-  caption: [Benchmark na posição "Kiwipete" para $d=5$],
-) <benchmark7>
-
-Para complementar a análise, a @medias resume os tempos médios obtidos nos presets "captures", "promotions" e "kiwipete".
+A @medias resume os tempos médios obtidos nos presets "captures", "promotions" e "kiwipete".
 
 #figure(
   table(
     columns: (1.2fr, 1fr, 1fr, 1fr, 1fr, 1fr),
     align: horizon,
     table.header(
-        [Posição de teste], 
-        [Profundidade],  
-        [ChessLib], 
-        [Shakmaty], 
+        [Posição de teste],
+        [Profundidade],
+        [ChessLib],
+        [Shakmaty],
         [Chess],
         [Stockfish via UCI]
     ),

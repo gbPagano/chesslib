@@ -112,7 +112,7 @@
     )
     set columns(gutter: 6mm)
     set text(
-        font: ("Times New Roman", "TeX Gyre Termes"),
+        font: ("TeX Gyre Termes", "Times New Roman"),
         size: 10pt,
         lang: "pt",
         region: "BR",
@@ -198,7 +198,8 @@
 
     // O CEEL exige TODAS as legendas no TOPO da caixa
     set figure.caption(position: top)
-    show figure: set block(above: 0.55em, below: 0.65em, breakable: true)
+    set figure(gap: 1.0em)
+    show figure: set block(above: 1.2em, below: 1.0em, breakable: false)
     show figure.caption: set text(size: 9pt)
 
     // Tabelas: Recebem suplemento "Tabela" e numeral Romano
