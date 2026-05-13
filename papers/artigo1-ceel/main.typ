@@ -12,14 +12,14 @@
       department: [Faculdade de Engenharia Elétrica],
       organization: [Universidade Federal de Uberlândia],
       location: [Uberlândia, Brazil],
-      orcid: [ORCID: ...],
+      orcid: [ORCID: 0009-0006-7660-3686],
     ),
     (
       name: "João Marcos de Oliveira Calixto",
       department: [Faculdade de Engenharia Elétrica],
       organization: [Universidade Federal de Uberlândia],
       location: [Uberlândia, Brazil],
-      orcid: [ORCID: ...],
+      orcid: [ORCID: 0009-0001-3915-7916],
     ),
     (
       name: "Augusto W. F. Veloso da Silveira",
