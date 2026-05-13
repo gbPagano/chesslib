@@ -87,10 +87,6 @@
     #text(size: 12pt, weight: "bold")[#upper(title)]
 ]
 
-#let ceel-unnumbered(title) = [
-    #align(center)[#text(weight: "bold")[#upper(title)]]
-]
-
 #let ceel(
     title: "",
     authors: "",
@@ -159,16 +155,17 @@
             show: block.with(spacing: 10pt, sticky: true)
             if it.numbering != none {
                 numbering("A.", deepest)
-                h(7pt, weak: true)
+                h(2pt, weak: true)
             }
             it.body
        } else if it.level == 3 {
             show: block.with(sticky: true)
+            set text(style: "italic")
             if it.numbering != none {
                 numbering("1)", deepest)
-                [ ]
+                h(4mm, weak: true)
             }
-        [_#(it.body)_]
+            it.body
         } else [
         _#(it.body):_
         ]
@@ -179,7 +176,13 @@
 
     // Ajustes de densidade do documento
     set list(spacing: 1mm)
-    set enum(spacing: 1mm)
+    set enum(numbering: "1)")
+
+    show pad: it => {
+        set par(first-line-indent: 0mm)
+        it
+    }
+
     set table(stroke: 0.5pt, inset: 1.5pt)
     show table: it => text(size: 8pt, it)
     show raw: it => text(size: 8pt, it)

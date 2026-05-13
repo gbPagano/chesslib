@@ -1,4 +1,4 @@
-#import "ceel.typ": ceel, ceel-unnumbered
+#import "ceel.typ": ceel
 
 #let titulo = "Desenvolvimento de um Gerador de Lances para Xadrez em Rust com Bitboards e Magic Bitboards"
 #let titulo_en = "Development of a Chess Move Generator in Rust with Bitboards and Magic Bitboards"
@@ -88,19 +88,21 @@ Na convenção utilizada, baseada em _Little-Endian File Mapping_, a casa "a1" c
 
 A geração de lances na ChessLib é dividida entre peças de passo e peças deslizantes. Em ambos os casos, a lógica procura deslocar o máximo possível do custo computacional para tabelas pré-calculadas e operações bitwise simples em tempo de execução.
 
-=== Peças de Passo
+#pad(left: 4mm)[
+    === Peças de Passo
 
-Para cavalo e rei, os padrões de ataque dependem apenas da casa de origem; por isso, seus movimentos podem ser pré-computados para as 64 casas e depois filtrados com base na ocupação por peças da mesma cor. 
+    Para cavalo e rei, os padrões de ataque dependem apenas da casa de origem; por isso, seus movimentos podem ser pré-computados para as 64 casas e depois filtrados com base na ocupação por peças da mesma cor. 
 
-Um cuidado importante nessa etapa é evitar o problema de _wrap-around_, no qual deslocamentos de bits podem produzir ataques inválidos entre bordas opostas do tabuleiro. Esse efeito é evitado mediante máscaras de arquivo aplicadas antes ou depois dos deslocamentos, conforme o padrão de movimento.
+    Um cuidado importante nessa etapa é evitar o problema de _wrap-around_, no qual deslocamentos de bits podem produzir ataques inválidos entre bordas opostas do tabuleiro. Esse efeito é evitado mediante máscaras de arquivo aplicadas antes ou depois dos deslocamentos, conforme o padrão de movimento.
 
-No caso dos peões, a geração é mais particular, pois envolve avanço simples, avanço duplo, capturas diagonais, promoção e _en passant_. 
+    No caso dos peões, a geração é mais particular, pois envolve avanço simples, avanço duplo, capturas diagonais, promoção e _en passant_. 
 
-O avanço simples pode ser modelado por deslocamento vertical e filtragem pelas casas vazias; o avanço duplo exige, adicionalmente, que a peça esteja na fileira inicial e que não haja bloqueio intermediário. As capturas diagonais também são expressas com deslocamentos bitwise, combinados com máscaras para impedir _wrap-around_. Já promoções e _en passant_ dependem de informação adicional de estado, exigindo tratamento específico na lógica de aplicação e validação dos lances.
+    O avanço simples pode ser modelado por deslocamento vertical e filtragem pelas casas vazias; o avanço duplo exige, adicionalmente, que a peça esteja na fileira inicial e que não haja bloqueio intermediário. As capturas diagonais também são expressas com deslocamentos bitwise, combinados com máscaras para impedir _wrap-around_. Já promoções e _en passant_ dependem de informação adicional de estado, exigindo tratamento específico na lógica de aplicação e validação dos lances.
 
-=== Peças Deslizantes
+    === Peças Deslizantes
 
-Para torres, bispos e damas, entretanto, a geração de lances é substancialmente mais complexa. O conjunto de ataques dessas peças depende da configuração dos bloqueadores presentes ao longo de raios horizontais, verticais ou diagonais. Uma abordagem ingênua, baseada em varrer cada direção em tempo de execução para cada peça, produz custo elevado. Por isso, a ChessLib adota a técnica de _magic bitboards_, que substitui esse processo por indexação em tabelas pré-calculadas @kannan2007magic @magicbitboards.
+    Para torres, bispos e damas, entretanto, a geração de lances é substancialmente mais complexa. O conjunto de ataques dessas peças depende da configuração dos bloqueadores presentes ao longo de raios horizontais, verticais ou diagonais. Uma abordagem ingênua, baseada em varrer cada direção em tempo de execução para cada peça, produz custo elevado. Por isso, a ChessLib adota a técnica de _magic bitboards_, que substitui esse processo por indexação em tabelas pré-calculadas @kannan2007magic @magicbitboards.
+]
 
 == Magic Bitboards
 
@@ -119,33 +121,30 @@ O valor produzido é então utilizado para acessar uma tabela cujo conteúdo é 
 
 A implementação depende de três elementos principais:
 
-=== Máscara de bloqueadores 
+#pad(left: 4mm)[
+    === Máscara de bloqueadores 
 
-Esse elemento define quais casas realmente influenciam os ataques de uma peça deslizante em determinada casa. Essas casas correspondem aos raios de movimento da peça, excluindo a própria casa de origem, bem como as casas de borda. Essa exclusão é uma otimização importante, pois o estado da casa terminal de um raio é redundante para distinguir conjuntos de ataque, permitindo reduzir o número de combinações relevantes e, consequentemente, o tamanho das tabelas.
+    Esse elemento define quais casas realmente influenciam os ataques de uma peça deslizante em determinada casa. Essas casas correspondem aos raios de movimento da peça, excluindo a própria casa de origem, bem como as casas de borda. Essa exclusão é uma otimização importante, pois o estado da casa terminal de um raio é redundante para distinguir conjuntos de ataque, permitindo reduzir o número de combinações relevantes e, consequentemente, o tamanho das tabelas.
 
-=== Número Mágico
+    === Número Mágico
 
-O número mágico é uma constante de 64 bits, única para cada casa e tipo de peça (torre/bispo), que foi descoberta através de uma busca por força bruta para satisfazer a propriedade de hashing perfeito para a máscara de bloqueadores dessa casa. 
+    O número mágico é uma constante de 64 bits, única para cada casa e tipo de peça (torre/bispo), que foi descoberta através de uma busca por força bruta para satisfazer a propriedade de hashing perfeito para a máscara de bloqueadores dessa casa. 
 
-Estes números não são derivados de uma fórmula matemática, mas são encontrados através de um processo de tentativa e erro. Embora esse procedimento seja empírico, a técnica possui validação e lastro na literatura científica de jogos de tabuleiro, tendo sido formalmente proposta e implementada também no contexto do Shogi @yamamoto2010shogi. A comunidade de programação de xadrez mantém listas dos "melhores mágicos até agora", que são números que não só funcionam, mas também permitem tabelas de ataque mais compactas @fiekas2018magic. 
+    Estes números não são derivados de uma fórmula matemática, mas são encontrados através de um processo de tentativa e erro. Embora esse procedimento seja empírico, a técnica possui validação e lastro na literatura científica de jogos de tabuleiro, tendo sido formalmente proposta e implementada também no contexto do Shogi @yamamoto2010shogi. A comunidade de programação de xadrez mantém listas dos "melhores mágicos até agora", que são números que não só funcionam, mas também permitem tabelas de ataque mais compactas @fiekas2018magic. 
 
-Cada uma das 128 combinações (64 para torres, 64 para bispos) tem o seu próprio número mágico único.
+    Cada uma das 128 combinações (64 para torres, 64 para bispos) tem o seu próprio número mágico único.
 
-=== Tabela de Ataques
+    === Tabela de Ataques
 
-Por fim, a tabela de ataques armazena, para cada índice válido, o bitboard correspondente ao conjunto de movimentos possíveis. Depois de inicializada, a consulta em tempo de execução torna-se extremamente barata: basta isolar os bloqueadores relevantes, calcular o índice mágico e recuperar o bitboard de ataques armazenado.
+    Por fim, a tabela de ataques armazena, para cada índice válido, o bitboard correspondente ao conjunto de movimentos possíveis. Depois de inicializada, a consulta em tempo de execução torna-se extremamente barata: basta isolar os bloqueadores relevantes, calcular o índice mágico e recuperar o bitboard de ataques armazenado.
 
-A etapa de inicialização consiste justamente em construir essas tabelas e validar números mágicos adequados para bispos e torres em cada uma das 64 casas. Embora essa fase seja relativamente trabalhosa, ela é executada apenas uma vez, deslocando o custo computacional para fora do caminho crítico da geração de lances. O processo de busca de um número mágico pode ser resumido pelo fluxo apresentado na @lofa.
+    A etapa de inicialização consiste justamente em construir essas tabelas e validar números mágicos adequados para bispos e torres em cada uma das 64 casas. Embora essa fase seja relativamente trabalhosa, ela é executada apenas uma vez, deslocando o custo computacional para fora do caminho crítico da geração de lances.
 
-#figure(
-  image("./assets/lofa.drawio.svg", width: 62%),
-  caption: "Geração e validação de um número mágico",
-)<lofa>
-
-Uma vez inicializado, o processo de geração de movimentos em tempo de execução é extremamente eficiente, consistindo em uma sequência linear de operações apresentadas na @talofa.
+    Uma vez inicializado, o processo de geração de movimentos em tempo de execução é extremamente eficiente, consistindo em uma sequência linear de operações apresentadas na @talofa.
+]
 
 #figure(
-  image("./assets/talofa.drawio.svg", width: 30%),
+  image("./assets/talofa.drawio.svg", width: 25%),
   caption: "Consulta de ataques em tempo de execução com magic bitboards",
 )<talofa>
 
@@ -206,31 +205,33 @@ Desse modo, a avaliação busca situar a ChessLib tanto em relação a bibliotec
 
 Os experimentos foram definidos a partir de um conjunto de posições em notação Forsyth-Edwards (FEN), formato amplamente empregado para representar estados completos de uma partida de xadrez @pgnspec. A seleção das posições teve como objetivo variar a carga de processamento e cobrir aspectos específicos da lógica de geração de lances.
 
-=== Posição Inicial 
+#pad(left: 4mm)[
+    === Posição Inicial 
 
-A posição inicial foi adotada como referência básica por ser um caso clássico de benchmark em testes _Perft_.
+    A posição inicial foi adotada como referência básica por ser um caso clássico de benchmark em testes _Perft_.
 
-`rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1` 
+    `rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1`
 
-=== Teste de capturas
+    === Teste de capturas
 
-Uma posição clássica de _perft_ com alta incidência de capturas e tática imediata, útil para estressar verificações de legalidade e a enumeração de respostas forçadas.
+    Uma posição clássica de _perft_ com alta incidência de capturas e tática imediata, útil para estressar verificações de legalidade e a enumeração de respostas forçadas.
 
-`rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8`
+    `rnbq1k1r/pp1Pbppp/2p5/8/2B5/8/PPP1NnPP/RNBQK2R w KQ - 1 8`
 
-=== "Kiwipete"
+    === "Kiwipete"
 
-Uma posição complexa de meio-jogo com muitas possibilidades táticas, incluindo roques, capturas e lances de peão. Testa o desempenho num cenário mais realista e computacionalmente denso.
+    Uma posição complexa de meio-jogo com muitas possibilidades táticas, incluindo roques, capturas e lances de peão. Testa o desempenho num cenário mais realista e computacionalmente denso.
 
-`r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1`
+    `r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1`
 
-=== Teste de promoção
+    === Teste de promoção
 
-Uma posição projetada especificamente para testar a lógica de promoção de peões, que pode ser uma fonte de bugs e ineficiências.
+    Uma posição projetada especificamente para testar a lógica de promoção de peões, que pode ser uma fonte de bugs e ineficiências.
 
-`n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1`
+    `n1n5/PPPk4/8/8/8/8/4Kppp/5N1N b - - 0 1`
+]
 
-Na posição inicial, os benchmarks principais foram executados nas profundidades 4 a 7. Nos presets específicos, foram avaliadas as posições `captures` na profundidade 5, `promotions` na profundidade 6 e `kiwipete` na profundidade 5. As implementações `chesslib-simple` e `python-chess` foram incluídas apenas na rodada de profundidade 4 da posição inicial, em caráter complementar.
+Na posição inicial, os benchmarks principais foram executados nas profundidades 4 a 7. Nos presets específicos, foram avaliadas as posições captures na profundidade 5, promotions na profundidade 6 e kiwipete na profundidade 5. As implementações chesslib-simple e python-chess foram incluídas apenas na rodada de profundidade 4 da posição inicial, em caráter complementar.
 
 = Resultados
 
@@ -243,7 +244,6 @@ ChessLib-Simple é uma implementação alternativa da ChessLib, que não utiliza
 ChessLib-Simple e Python-Chess só foram incluídos na rodada da profundidade 4 da posição inicial.
 
 == Posição Inicial
-
 
 #figure(
   table(
@@ -404,5 +404,6 @@ No plano experimental, a ChessLib demonstrou que é possível combinar eficiênc
 
 Desse modo, o trabalho não reivindica a superação da principal referência avaliada em Rust, mas mostra que a ChessLib alcançou um patamar competitivo e tecnicamente robusto, mesmo incorporando responsabilidades adicionais além da enumeração mínima de lances. Em conjunto, esses resultados sustentam a biblioteca como uma base promissora para extensões futuras, como mecanismos de busca, funções de avaliação e, em particular, a implementação de uma inteligência artificial capaz de explorar essa infraestrutura para seleção autônoma de movimentos.
 
-#ceel-unnumbered[REFERÊNCIAS]
+= REFERÊNCIAS
+
 #bibliography("refs.yml", title: none, style: "ieee")
