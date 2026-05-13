@@ -110,38 +110,38 @@
     // Configure headings.
     set heading(numbering: "I.A.a)")
     show heading: it => {
-        // Find out the final number of the heading counter.
-        let levels = counter(heading).get()
-        let deepest = if levels != () {
-        levels.last()
+            // Find out the final number of the heading counter.
+            let levels = counter(heading).get()
+            let deepest = if levels != () {
+            levels.last()
         } else {
-        1
+            1
         }
 
         set text(10pt, weight: 400)
         if it.level == 1 {
-        // First-level headings are centered smallcaps.
-        // We don't want to number the acknowledgment section.
-        let is-ack = it.body in ([Acknowledgment], [Acknowledgement], [Acknowledgments], [Acknowledgements])
-        set align(center)
-        set text(if is-ack { 10pt } else { 11pt })
-        show: block.with(above: 15pt, below: 13.75pt, sticky: true)
-        show: smallcaps
-        if it.numbering != none and not is-ack {
-            numbering("I.", deepest)
-            h(7pt, weak: true)
-        }
-        it.body
+            // First-level headings are centered smallcaps.
+            // We don't want to number the acknowledgment section.
+            let is-ack = it.body in ([Acknowledgment], [Acknowledgement], [Acknowledgments], [Acknowledgements])
+            set align(center)
+            set text(if is-ack { 10pt } else { 11pt })
+            show: block.with(above: 15pt, below: 13.75pt, sticky: true)
+            show: smallcaps
+            if it.numbering != none and not is-ack {
+                numbering("I.", deepest)
+                h(7pt, weak: true)
+            }
+            it.body
         } else if it.level == 2 {
-        // Second-level headings are run-ins.
-        set par(first-line-indent: 0pt)
-        set text(style: "italic")
-        show: block.with(spacing: 10pt, sticky: true)
-        if it.numbering != none {
-            numbering("A.", deepest)
-            h(7pt, weak: true)
-        }
-        it.body
+            // Second-level headings are run-ins.
+            set par(first-line-indent: 0pt)
+            set text(style: "italic")
+            show: block.with(spacing: 10pt, sticky: true)
+            if it.numbering != none {
+                numbering("A.", deepest)
+                h(7pt, weak: true)
+            }
+            it.body
        } else if it.level == 3 {
             show: block.with(sticky: true)
             if it.numbering != none {
