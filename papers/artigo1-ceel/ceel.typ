@@ -58,7 +58,7 @@
         #align(center)[
             #text(size: 14pt, weight: "bold")[#event] \
             #text(size: 12pt, weight: "bold")[#institution] \
-            #text(size: 11pt, weight: "bold")[#date]
+            #text(size: 12pt, weight: "bold")[#date]
         ]
     ]
 
@@ -146,7 +146,7 @@
             show: upper
             if it.numbering != none and not is-ack {
                 numbering("I.", deepest)
-                h(7pt, weak: true)
+                h(5pt, weak: true)
             }
             it.body
         } else if it.level == 2 {
@@ -155,7 +155,7 @@
             show: block.with(spacing: 10pt, sticky: true)
             if it.numbering != none {
                 numbering("A.", deepest)
-                h(2pt, weak: true)
+                h(5pt, weak: true)
             }
             it.body
        } else if it.level == 3 {
