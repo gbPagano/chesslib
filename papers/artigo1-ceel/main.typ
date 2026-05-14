@@ -26,7 +26,7 @@
       department: [Faculdade de Engenharia Elétrica],
       organization: [Universidade Federal de Uberlândia],
       location: [Uberlândia, Brazil],
-      orcid: [ORCID: ...],
+      orcid: [ORCID: 0000-0003-3628-3930],
     ),
   ),
   abstract: [
