@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Figuras</title>
+<style>
+  body{margin:0; padding:40px; background:#fff; font-family:"Times New Roman",serif;}
+  .fig{width:1100px; height:1100px; background:#fff; padding:0; margin:0 0 40px 0; position:relative;}
+  svg{display:block; width:100%; height:100%;}
+</style>
+</head>
+<body>
+
+<!-- ============ FIGURE A — Magic Number Search ============ -->
+<div class="fig" id="figA">
+  <svg viewBox="0 0 1100 1100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#D24514"/>
+      </marker>
+      <marker id="arrDk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#9B2F0A"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="550" y="48" text-anchor="middle" font-family="Times New Roman, serif" font-size="34" font-weight="700" fill="#9B2F0A">
+      Busca do número mágico
+    </text>
+    <line x1="350" y1="65" x2="750" y2="65" stroke="#D24514" stroke-width="3"/>
+
+    <!-- Box 1: Start -->
+    <rect x="370" y="100" width="360" height="100" rx="50" fill="#9B2F0A"/>
+    <text x="550" y="138" text-anchor="middle" font-family="Times New Roman" font-size="26" fill="#fff" font-weight="700">INÍCIO</text>
+    <text x="550" y="172" text-anchor="middle" font-family="Times New Roman" font-size="22" fill="#fff">para cada casa &amp; tipo de peça</text>
+
+    <!-- Arrow down -->
+    <line x1="550" y1="200" x2="550" y2="240" stroke="#D24514" stroke-width="4" marker-end="url(#arr)"/>
+
+    <!-- Box 2: Generate -->
+    <rect x="270" y="250" width="560" height="120" rx="6" fill="#fff" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="285" text-anchor="middle" font-family="Helvetica" font-size="18" fill="#D24514" font-weight="700" letter-spacing="3">PASSO 1</text>
+    <text x="550" y="320" text-anchor="middle" font-family="Times New Roman" font-size="26" fill="#1a1a1a" font-weight="700">Gerar candidato aleatório (u64)</text>
+    <text x="550" y="352" text-anchor="middle" font-family="Courier New, monospace" font-size="22" fill="#666">magic ← rand_u64()</text>
+
+    <line x1="550" y1="370" x2="550" y2="410" stroke="#D24514" stroke-width="4" marker-end="url(#arr)"/>
+
+    <!-- Box 3: Apply -->
+    <rect x="220" y="420" width="660" height="130" rx="6" fill="#fff" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="455" text-anchor="middle" font-family="Helvetica" font-size="18" fill="#D24514" font-weight="700" letter-spacing="3">PASSO 2</text>
+    <text x="550" y="490" text-anchor="middle" font-family="Times New Roman" font-size="26" fill="#1a1a1a" font-weight="700">Aplicar a todas as combinações</text>
+    <text x="550" y="520" text-anchor="middle" font-family="Times New Roman" font-size="26" fill="#1a1a1a" font-weight="700">de bloqueadores da máscara</text>
+    <text x="550" y="548" text-anchor="middle" font-family="Courier New, monospace" font-size="20" fill="#666">((occ &amp; mask) × magic) ≫ shift</text>
+
+    <line x1="550" y1="550" x2="550" y2="590" stroke="#D24514" stroke-width="4" marker-end="url(#arr)"/>
+
+    <!-- Decision diamond: collision? -->
+    <polygon points="550,600 780,720 550,840 320,720" fill="#FAF6F2" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="710" text-anchor="middle" font-family="Helvetica" font-size="18" fill="#D24514" font-weight="700" letter-spacing="3">PASSO 3</text>
+    <text x="550" y="745" text-anchor="middle" font-family="Times New Roman" font-size="28" fill="#1a1a1a" font-weight="700">Colisão?</text>
+
+    <!-- YES branch — left, back to step 1 -->
+    <line x1="320" y1="720" x2="170" y2="720" stroke="#9B2F0A" stroke-width="3" stroke-dasharray="8,6"/>
+    <line x1="170" y1="720" x2="170" y2="310" stroke="#9B2F0A" stroke-width="3" stroke-dasharray="8,6"/>
+    <line x1="170" y1="310" x2="265" y2="310" stroke="#9B2F0A" stroke-width="3" stroke-dasharray="8,6" marker-end="url(#arrDk)"/>
+    <text x="250" y="700" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="22" fill="#9B2F0A" font-weight="700">SIM</text>
+    <text x="170" y="515" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="22" fill="#9B2F0A" font-weight="700">descartar</text>
+    <text x="170" y="545" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="22" fill="#9B2F0A" font-weight="700">e tentar novamente</text>
+
+    <!-- NO branch — down to success -->
+    <line x1="550" y1="840" x2="550" y2="880" stroke="#D24514" stroke-width="4" marker-end="url(#arr)"/>
+    <text x="600" y="868" font-family="Times New Roman" font-style="italic" font-size="22" fill="#1a8a3f" font-weight="700">NÃO</text>
+
+    <!-- Box 4: Success -->
+    <rect x="270" y="890" width="560" height="120" rx="6" fill="#1a8a3f"/>
+    <text x="550" y="925" text-anchor="middle" font-family="Helvetica" font-size="18" fill="#fff" font-weight="700" letter-spacing="3">PASSO 4 ✓</text>
+    <text x="550" y="960" text-anchor="middle" font-family="Times New Roman" font-size="26" fill="#fff" font-weight="700">Popular tabela de ataques</text>
+    <text x="550" y="990" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="22" fill="#d5f0d8">mágico válido encontrado</text>
+  </svg>
+</div>
+
+<!-- ============ FIGURE B — Runtime Lookup ============ -->
+<div class="fig" id="figB">
+  <svg viewBox="0 0 1100 1100" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse">
+        <path d="M0,0 L10,5 L0,10 z" fill="#D24514"/>
+      </marker>
+    </defs>
+
+    <!-- Title -->
+    <text x="550" y="48" text-anchor="middle" font-family="Times New Roman, serif" font-size="34" font-weight="700" fill="#9B2F0A">
+      Consulta em tempo de execução
+    </text>
+    <line x1="280" y1="65" x2="820" y2="65" stroke="#D24514" stroke-width="3"/>
+
+    <!-- Two inputs at top -->
+    <rect x="120" y="110" width="350" height="100" rx="6" fill="#222"/>
+    <text x="295" y="148" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#FCEAD5" letter-spacing="2" font-weight="700">ENTRADA</text>
+    <text x="295" y="185" text-anchor="middle" font-family="Courier New, monospace" font-size="28" fill="#fff" font-weight="700">occupancy</text>
+
+    <rect x="630" y="110" width="350" height="100" rx="6" fill="#222"/>
+    <text x="805" y="148" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#FCEAD5" letter-spacing="2" font-weight="700">PRÉ-CALCULADO</text>
+    <text x="805" y="185" text-anchor="middle" font-family="Courier New, monospace" font-size="28" fill="#fff" font-weight="700">mask</text>
+
+    <!-- AND -->
+    <line x1="295" y1="210" x2="500" y2="278" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+    <line x1="805" y1="210" x2="600" y2="278" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+    <circle cx="550" cy="310" r="56" fill="#fff" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="325" text-anchor="middle" font-family="Courier New, monospace" font-size="44" fill="#D24514" font-weight="700">&amp;</text>
+
+    <line x1="550" y1="366" x2="550" y2="400" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+
+    <!-- intermediate: relevant blockers -->
+    <rect x="290" y="410" width="520" height="80" rx="6" fill="#FAF6F2" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="440" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#D24514" letter-spacing="3" font-weight="700">INTERMEDIÁRIO</text>
+    <text x="550" y="472" text-anchor="middle" font-family="Times New Roman" font-size="26" fill="#1a1a1a" font-weight="700">bloqueadores relevantes</text>
+
+    <!-- multiply -->
+    <line x1="550" y1="490" x2="550" y2="540" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+
+    <rect x="160" y="555" width="270" height="100" rx="6" fill="#9B2F0A"/>
+    <text x="295" y="590" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#FCEAD5" letter-spacing="2" font-weight="700">CONST. ÚNICA</text>
+    <text x="295" y="625" text-anchor="middle" font-family="Courier New, monospace" font-size="28" fill="#fff" font-weight="700">magic</text>
+
+    <circle cx="550" cy="600" r="56" fill="#fff" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="618" text-anchor="middle" font-family="Courier New, monospace" font-size="44" fill="#D24514" font-weight="700">×</text>
+    <line x1="432" y1="605" x2="495" y2="605" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+
+    <line x1="550" y1="656" x2="550" y2="690" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+
+    <!-- shift -->
+    <rect x="350" y="700" width="400" height="80" rx="6" fill="#9B2F0A"/>
+    <text x="550" y="730" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#FCEAD5" letter-spacing="3" font-weight="700">DESLOCAMENTO</text>
+    <text x="550" y="762" text-anchor="middle" font-family="Courier New, monospace" font-size="28" fill="#fff" font-weight="700">&gt;&gt; shift</text>
+
+    <line x1="550" y1="780" x2="550" y2="815" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+
+    <!-- index -->
+    <rect x="350" y="825" width="400" height="80" rx="6" fill="#FAF6F2" stroke="#D24514" stroke-width="3"/>
+    <text x="550" y="855" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#D24514" letter-spacing="3" font-weight="700">ÍNDICE</text>
+    <text x="550" y="887" text-anchor="middle" font-family="Courier New, monospace" font-size="28" fill="#1a1a1a" font-weight="700">index</text>
+
+    <line x1="550" y1="905" x2="550" y2="940" stroke="#D24514" stroke-width="4" marker-end="url(#arr2)"/>
+
+    <!-- output -->
+    <rect x="290" y="950" width="520" height="110" rx="6" fill="#1a8a3f"/>
+    <text x="550" y="985" text-anchor="middle" font-family="Helvetica" font-size="16" fill="#d5f0d8" letter-spacing="2" font-weight="700">SAÍDA</text>
+    <text x="550" y="1020" text-anchor="middle" font-family="Courier New, monospace" font-size="26" fill="#fff" font-weight="700">attacks_table[ index ]</text>
+    <text x="550" y="1048" text-anchor="middle" font-family="Times New Roman" font-style="italic" font-size="22" fill="#d5f0d8">bitboard de ataques</text>
+  </svg>
+</div>
+
+</body>
+</html>

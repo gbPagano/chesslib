@@ -1,0 +1,1971 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<title>ChessLib · XXIII CEEL</title>
+<script src="deck-stage.js"></script>
+<style>
+  :root{
+    --bg:#ffffff;
+    --ink:#1a1a1a;
+    --muted:#555;
+    --line:#d8d4cf;
+    --accent:#D24514;        /* CEEL orange */
+    --accent-soft:#F5E2D7;
+    --accent-deep:#9B2F0A;
+    --gold:#C98B2A;
+    --type-title:60px;
+    --type-subtitle:40px;
+    --type-body:30px;
+    --type-small:26px;
+    --type-tiny:24px;
+    --pad-x:96px;
+    --pad-top:64px;
+    --pad-bottom:88px;
+    --gap-title:44px;
+    --gap-item:24px;
+    --serif:"Times New Roman", "Tinos", "Liberation Serif", serif;
+    --sans:"Helvetica Neue", Helvetica, Arial, sans-serif;
+    --mono:"JetBrains Mono","Fira Code",ui-monospace, Menlo, Consolas, monospace;
+  }
+
+  html,body{margin:0;background:#111;}
+  deck-stage{font-family:var(--serif); color:var(--ink);}
+  deck-stage > section{
+    background:#fff;
+    overflow:hidden;
+    position:relative;
+  }
+
+  /* ============ HEADER + FOOTER (template chrome) ============ */
+  .chrome-top{
+    position:absolute; top:0; left:0; right:0; height:140px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 24px 96px 0 96px;
+    border-bottom:none;
+    z-index:5;
+  }
+  .chrome-top .logos-left{
+    display:flex; align-items:center; gap:28px;
+  }
+  .chrome-top .logos-left img{ height:88px; width:auto; object-fit:contain; }
+  .chrome-top .logo-ceel{ height:96px; width:auto; }
+  .chrome-bar{
+    position:absolute; left:var(--pad-x); right:var(--pad-x);
+    top:148px; height:4px; background:var(--accent); opacity:.9;
+  }
+  .chrome-bottom{
+    position:absolute; bottom:0; left:0; right:0; height:64px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 56px;
+    font-family:var(--sans);
+    font-size:24px;
+    color:var(--muted);
+    border-top:2px solid var(--accent);
+    background:#fff;
+  }
+  .chrome-bottom .left{display:flex; gap:18px; align-items:center;}
+  .chrome-bottom .left strong{color:var(--accent-deep); font-weight:700; letter-spacing:.5px;}
+  .chrome-bottom .right{font-style:italic;}
+
+  /* ============ SLIDE BODIES ============ */
+  .slide-body{
+    position:absolute;
+    left:var(--pad-x); right:var(--pad-x);
+    top:200px; bottom:96px;
+    display:flex; flex-direction:column;
+  }
+  .slide-title{
+    font-family:var(--serif);
+    font-weight:700;
+    font-size:var(--type-title);
+    color:var(--accent-deep);
+    line-height:1.05;
+    margin:0 0 8px 0;
+  }
+  .slide-eyebrow{
+    font-family:var(--sans);
+    font-size:var(--type-tiny);
+    letter-spacing:3px;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 14px 0;
+    font-weight:600;
+  }
+  .slide-rule{
+    width:120px; height:5px; background:var(--accent); margin:6px 0 var(--gap-title) 0;
+    flex-shrink:0;
+  }
+
+  p.body, li.body{
+    font-family:var(--serif);
+    font-size:var(--type-body);
+    line-height:1.45;
+    color:var(--ink);
+    margin:0 0 var(--gap-item) 0;
+    text-align:justify;
+  }
+  ul.body, ol.body{
+    margin:0 0 var(--gap-item) 0; padding-left:1.4em;
+    font-family:var(--serif); font-size:var(--type-body); line-height:1.45; color:var(--ink);
+  }
+  ul.body li, ol.body li{ margin-bottom:14px; font-size:inherit; }
+
+  .small{ font-size:var(--type-small); color:var(--muted); font-style:italic;}
+
+  /* ============ COVER ============ */
+  .cover{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column;
+    background:#fff;
+  }
+  .cover-top{
+    height:200px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:32px 64px 0 64px;
+  }
+  .cover-top .left{display:flex; gap:36px; align-items:center;}
+  .cover-top .left img{height:120px; width:auto;}
+  .cover-top .logo-ceel{height:140px; width:auto;}
+  .cover-rule{ height:6px; background:var(--accent); margin:0 64px;}
+
+  .cover-main{
+    flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;
+    padding: 24px 120px;
+    text-align:center;
+  }
+  .cover-eyebrow{
+    font-family:var(--sans); font-size:26px; letter-spacing:6px;
+    text-transform:uppercase; color:var(--accent); font-weight:700;
+    margin-bottom:36px;
+  }
+  .cover-title{
+    font-family:var(--serif); font-weight:700; font-size:72px;
+    color:var(--accent-deep); line-height:1.08; margin:0;
+    text-wrap:balance;
+  }
+  .cover-subtitle{
+    font-family:var(--serif); font-style:italic; font-size:36px;
+    color:var(--muted); margin-top:28px;
+  }
+  .cover-authors{
+    margin-top:56px;
+    font-family:var(--serif); font-size:30px; color:var(--ink);
+    line-height:1.55;
+  }
+  .cover-authors .inst{ font-weight:700; }
+  .cover-bottom{
+    height:96px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 64px;
+    background:var(--accent);
+    color:#fff;
+    font-family:var(--sans);
+    font-size:26px;
+    letter-spacing:1px;
+  }
+  .cover-bottom .iss{font-style:italic; opacity:.9;}
+  .cover-bottom .date{font-weight:700;}
+
+  /* ============ AGENDA ============ */
+  .agenda{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 80px;
+    margin-top: 12px;
+  }
+  .agenda-item{
+    display:flex; align-items:baseline; gap:24px;
+    font-family:var(--serif); font-size:32px;
+    border-bottom:1px solid var(--line);
+    padding-bottom:18px;
+  }
+  .agenda-num{
+    font-family:var(--sans); font-weight:700;
+    font-size:28px; color:var(--accent);
+    min-width:48px;
+  }
+  .agenda-label{color:var(--ink); flex:1;}
+
+  /* ============ BIG NUMBER / STAT ============ */
+  .stat-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    margin-top: 16px;
+  }
+  .stat{
+    border-top:5px solid var(--accent);
+    padding: 24px 8px 12px 8px;
+  }
+  .stat .num{
+    font-family:var(--serif); font-weight:700; font-size:96px;
+    color:var(--accent-deep); line-height:1; letter-spacing:-1px;
+  }
+  .stat .unit{font-size:36px; color:var(--muted);}
+  .stat .lbl{
+    font-family:var(--sans); font-size:20px; letter-spacing:1.5px;
+    text-transform:uppercase; color:#222; margin-top:14px;
+  }
+
+  /* ============ TWO COLUMN ============ */
+  .two-col{
+    display:grid; grid-template-columns: 1fr 1fr; gap:64px;
+    margin-top:8px; flex:1;
+  }
+  .col h3.sec{
+    font-family:var(--serif); font-weight:700; font-size:34px;
+    color:var(--accent-deep); margin:0 0 16px 0;
+    position:relative; padding-bottom:14px;
+  }
+  .col h3.sec::after{
+    content:'';
+    position:absolute; left:0; bottom:0;
+    width:80px; height:4px; background:var(--accent);
+  }
+
+  /* ============ TABLE ============ */
+  table.ceel{
+    width:100%; border-collapse:collapse;
+    font-family:var(--serif); font-size:26px;
+  }
+  table.ceel thead th{
+    background:var(--accent); color:#fff;
+    font-weight:700; padding:14px 18px;
+    text-align:left;
+    font-size:24px;
+  }
+  table.ceel thead th.num{text-align:right;}
+  table.ceel tbody td{
+    padding:12px 18px; border-bottom:1px solid var(--line);
+    vertical-align:middle;
+  }
+  table.ceel tbody td.num{text-align:right; font-variant-numeric:tabular-nums;}
+  table.ceel tbody tr:nth-child(even) td{background:#FAF6F2;}
+  table.ceel tbody tr.us td{background:var(--accent-soft); font-weight:700;}
+  table.ceel tbody tr.us td:first-child{color:var(--accent-deep);}
+  .table-caption{
+    font-family:var(--serif); font-style:italic; font-size:24px;
+    color:var(--muted); margin-top:10px;
+  }
+
+  /* ============ CODE / FORMULA ============ */
+  .formula{
+    background:#FAF6F2;
+    border-left:8px solid var(--accent);
+    padding: 36px 48px;
+    font-family:var(--mono);
+    font-size:36px;
+    color:#1a1a1a;
+    margin: 12px 0 20px 0;
+    line-height:1.4;
+    border-radius:0 8px 8px 0;
+  }
+  .formula .kw{color:var(--accent-deep); font-weight:700;}
+  .formula .op{color:var(--gold);}
+
+  /* ============ STEP / FLOW ============ */
+  .flow{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap:24px;
+    margin-top:24px;
+  }
+  .step{
+    background:#FAF6F2;
+    border-top:5px solid var(--accent);
+    padding:20px 22px;
+    font-family:var(--serif);
+  }
+  .step .n{
+    font-family:var(--sans); font-size:18px; letter-spacing:2px;
+    color:var(--accent); font-weight:700; margin-bottom:8px;
+  }
+  .step .t{
+    font-size:24px; color:var(--ink); line-height:1.3; font-weight:700;
+  }
+  .step .d{
+    font-size:20px; color:var(--muted); margin-top:8px; line-height:1.35;
+  }
+
+  /* ============ BITBOARD GRID ============ */
+  .bb-wrap{
+    display:flex; gap:48px; align-items:flex-start; margin-top:8px;
+  }
+  .bb-board{
+    display:grid;
+    grid-template-columns: 28px repeat(8, 56px);
+    grid-template-rows: repeat(8, 56px) 28px;
+    font-family:var(--mono); font-size:14px; color:#666;
+  }
+  .bb-board .lbl-r{display:flex; align-items:center; justify-content:flex-end; padding-right:6px;}
+  .bb-board .lbl-f{display:flex; align-items:center; justify-content:center; padding-top:4px;}
+  .bb-board .sq{
+    border:1px solid #e2ddd6;
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:11px; color:#999;
+  }
+  .bb-board .sq.bit{background:var(--accent); color:#fff; font-weight:700; font-size:14px;}
+  .bb-board .sq.a1{background:#222; color:#fff; font-weight:700;}
+  .bb-board .sq.h8{background:#FCEAD5; color:var(--accent-deep); font-weight:700;}
+  .bb-legend{
+    flex:1; font-family:var(--serif); font-size:26px; color:var(--ink);
+  }
+  .bb-legend .row{display:flex; align-items:center; gap:14px; margin-bottom:14px;}
+  .bb-legend .chip{
+    width:32px; height:32px; flex-shrink:0;
+  }
+  .bb-legend .chip.a1{background:#222;}
+  .bb-legend .chip.h8{background:#FCEAD5; border:1px solid var(--accent);}
+  .bb-legend .chip.bit{background:var(--accent);}
+
+  /* ============ TWO TILES ============ */
+  .tile-row{
+    display:grid; grid-template-columns: 1fr 1fr; gap:40px;
+    margin-top:12px; flex:1;
+  }
+  .tile{
+    padding:32px 36px;
+    background:#FAF6F2;
+    border-left:6px solid var(--accent);
+  }
+  .tile h4{
+    font-family:var(--serif); font-weight:700; font-size:34px;
+    color:var(--accent-deep); margin:0 0 16px 0;
+  }
+  .tile p{
+    font-family:var(--serif); font-size:26px; line-height:1.45;
+    margin:0 0 14px 0;
+  }
+
+  /* ============ SECTION DIVIDER ============ */
+  .divider{
+    position:absolute; inset:0;
+    background:var(--accent);
+    color:#fff;
+    display:flex; flex-direction:column; justify-content:center; padding:0 var(--pad-x);
+  }
+  .divider .num{
+    font-family:var(--serif); font-style:italic; font-size:240px;
+    line-height:1; opacity:.25; margin:0;
+  }
+  .divider .ttl{
+    font-family:var(--serif); font-weight:700; font-size:96px;
+    line-height:1.05; margin:0; max-width: 1400px;
+  }
+  .divider .sub{
+    font-family:var(--serif); font-style:italic; font-size:34px;
+    margin-top:24px; max-width:1100px; opacity:.92;
+  }
+
+  /* ============ CLOSING ============ */
+  .closing{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; justify-content:center; align-items:center;
+    background:#fff;
+    text-align:center;
+    padding: 0 120px;
+  }
+  .closing h1{
+    font-family:var(--serif); font-weight:700; font-size:160px;
+    color:var(--accent-deep); margin:0;
+  }
+  .closing .rule{height:6px; width:240px; background:var(--accent); margin:32px 0;}
+  .closing .meta{
+    font-family:var(--serif); font-size:32px; color:var(--ink);
+    line-height:1.6;
+  }
+  .closing .repo{
+    font-family:var(--mono); font-size:26px; color:var(--accent-deep);
+    margin-top:24px;
+  }
+
+  /* ============ NOTES on figures ============ */
+  .fig-note{
+    font-family:var(--serif); font-style:italic;
+    font-size:24px; color:var(--muted); margin-top:8px; text-align:center;
+  }
+
+  /* references */
+  .refs{
+    columns: 2; column-gap: 80px;
+    font-family:var(--serif); font-size:24px; line-height:1.4;
+    color:var(--ink);
+  }
+  .refs p{
+    break-inside: avoid; margin: 0 0 12px 0; text-indent:-1.4em; padding-left:1.4em;
+  }
+  .refs .id{color:var(--accent); font-weight:700;}
+
+  /* ============ CHESS BOARD ANIMATIONS ============ */
+  .chess-anim{
+    --sq:58px;
+    --light:#F2E6D9;
+    --dark:#A37050;
+    --attack:#D24514;
+    --attack-soft:rgba(210,69,20,0.7);
+    display:flex; gap:48px; align-items:flex-start; margin-top:4px;
+    font-family:var(--mono);
+  }
+  .chess-anim.compact{ --sq:40px; gap:24px; }
+  .cb-wrap{ position:relative; }
+  .cb-wrap::before{
+    content:'';
+    position:absolute;
+    left:26px; top:0;
+    width:calc(8 * var(--sq, 58px));
+    height:calc(8 * var(--sq, 58px));
+    box-shadow: 0 10px 28px rgba(60,32,12,0.18), 0 2px 6px rgba(60,32,12,0.10);
+    pointer-events:none;
+    z-index:0;
+  }
+  .cb-board{
+    display:grid;
+    grid-template-columns: 26px repeat(8, var(--sq));
+    grid-template-rows: repeat(8, var(--sq)) 26px;
+    font-size:16px; color:#6e6e6e;
+    background:transparent;
+    position:relative; z-index:1;
+  }
+  .cb-lbl-r,.cb-lbl-f{
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono);
+    font-weight:700;
+    font-size:16px;
+    color:#5a4736;
+    background:transparent;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.85), 0 1px 2px rgba(60,32,12,0.18);
+  }
+  .cb-sq{ position:relative; }
+  .cb-light{ background:var(--light); }
+  .cb-dark { background:var(--dark);  }
+  .cb-overlay{
+    position:absolute; left:26px; top:0;
+    width:calc(8 * var(--sq)); height:calc(8 * var(--sq));
+    pointer-events:none;
+    z-index:2;
+  }
+  .ov{
+    position:absolute;
+    width:var(--sq); height:var(--sq);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .ov-piece{
+    font-size:calc(var(--sq) * 0.78);
+    line-height:1;
+    color:#0a0a0a;
+    font-family: "Arial Unicode MS", "DejaVu Sans", "Segoe UI Symbol", "Noto Sans Symbols 2", system-ui, sans-serif;
+    font-weight:400;
+    z-index:3;
+  }
+  .ov-piece.glow{ animation: piecePulse 1.2s ease-in-out infinite alternate; }
+  @keyframes piecePulse{
+    from{ filter:drop-shadow(0 0 0 var(--attack)); transform:scale(1); }
+    to{ filter:drop-shadow(0 0 18px var(--attack)); transform:scale(1.05); }
+  }
+  .ov-atk::before{
+    content:''; width:36%; height:36%; border-radius:50%;
+    background:radial-gradient(circle, var(--attack) 0%, var(--attack-soft) 60%, transparent 100%);
+    box-shadow:0 0 16px rgba(210,69,20,0.6);
+    animation: atkPulse 1.6s ease-in-out infinite alternate;
+  }
+  @keyframes atkPulse{
+    from{ transform:scale(0.85); opacity:.75;}
+    to{ transform:scale(1.1); opacity:1;}
+  }
+  .ov-atk.ring::before{
+    width:84%; height:84%; background:transparent;
+    border:6px solid var(--attack); box-shadow:0 0 16px rgba(210,69,20,0.6);
+  }
+  .ov-blocker{
+    width:62%; height:62%; border-radius:18%;
+    background:linear-gradient(160deg, #2a2a2a, #0c0c0c);
+    box-shadow: inset 0 3px 6px rgba(255,255,255,0.18), 0 3px 6px rgba(0,0,0,0.3);
+    z-index:2;
+    flex-shrink:0;
+    pointer-events:none;
+  }
+  /* Phase fade cycling: only opacity/animation, positioning comes from cb-overlay/bb-phase */
+  .cb-phase{ opacity:0; animation: phaseFade var(--cycle, 12s) infinite; }
+  @keyframes phaseFade{
+    0%         { opacity:0; }
+    2%, 25%    { opacity:1; }
+    27%, 100%  { opacity:0; }
+  }
+  .cb-phase.p1{ animation-delay: 0s; }
+  .cb-phase.p2{ animation-delay: 3s; }
+  .cb-phase.p3{ animation-delay: 6s; }
+  .cb-phase.p4{ animation-delay: 9s; }
+
+  /* Bitboard binary grid (right side) */
+  .bb-grid{
+    display:grid;
+    grid-template-columns: 26px repeat(8, var(--sq));
+    grid-template-rows: repeat(8, var(--sq)) 26px;
+    font-family:var(--mono); font-size:24px; font-weight:700;
+    color:#bfbfbf;
+    position:relative; z-index:1;
+    background:transparent;
+  }
+  .bb-cell{
+    display:flex; align-items:center; justify-content:center;
+    background:#FAF6F2;
+  }
+  .bb-cell.alt{ background:#EFE6D6; }
+  .bb-cell .one{
+    position:absolute; opacity:0;
+    color:#fff; font-size:30px;
+    background:var(--attack);
+    width:80%; height:80%;
+    display:flex; align-items:center; justify-content:center;
+    border-radius:8px;
+    box-shadow:0 0 24px rgba(210,69,20,0.5);
+    animation: bitFlash 1.4s ease-in-out infinite alternate;
+  }
+  .bb-cell.lit .one{ opacity:1; }
+  .bb-cell.piece .one{ background:#111; }
+  @keyframes bitFlash{
+    from{ transform:scale(0.92); opacity:.7; }
+    to  { transform:scale(1.02); opacity:1; }
+  }
+  /* phase grids on top of base */
+  .bb-phase{
+    position:absolute; left:26px; top:0;
+    width:calc(8 * var(--sq)); height:calc(8 * var(--sq));
+    pointer-events:none;
+    opacity:0; animation: phaseFade var(--cycle, 12s) infinite;
+    font-family:var(--mono); font-size:24px; font-weight:700;
+    z-index:2;
+  }
+  .bb-phase .b{
+    position:absolute;
+    width:var(--sq); height:var(--sq);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .bb-phase .b::before{
+    content:'1';
+    width:84%; height:84%;
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; background:var(--attack);
+    border-radius:8px;
+    box-shadow:0 2px 8px rgba(210,69,20,0.35);
+  }
+  .bb-phase .b.p::before{
+    background:#0a0a0a;
+    box-shadow:0 2px 8px rgba(0,0,0,0.35);
+  }
+  .bb-phase.p1{ animation-delay: 0s; }
+  .bb-phase.p2{ animation-delay: 3s; }
+  .bb-phase.p3{ animation-delay: 6s; }
+  .bb-phase.p4{ animation-delay: 9s; }
+
+  /* Caption strip for phase labels */
+  .phase-caption{
+    margin-top:14px; font-family:var(--mono); font-size:22px; color:var(--accent-deep);
+    height: 36px; position:relative;
+  }
+  .phase-caption span{
+    position:absolute; left:0; top:0; opacity:0;
+    animation: phaseFade var(--cycle, 12s) infinite;
+    font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+  }
+  .phase-caption span.p1{ animation-delay:0s; }
+  .phase-caption span.p2{ animation-delay:3s; }
+  .phase-caption span.p3{ animation-delay:6s; }
+  .phase-caption span.p4{ animation-delay:9s; }
+
+  /* Small piece legend (for slide 8) */
+  .piece-trio{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:36px; margin-top:8px;
+  }
+  .piece-card{
+    background:#FAF6F2; border-top:5px solid var(--accent);
+    padding:18px 18px 14px 18px;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .piece-card h4{
+    font-family:var(--serif); font-weight:700; font-size:26px;
+    color:var(--accent-deep); margin:0; text-align:center;
+  }
+  .piece-card .desc{
+    font-family:var(--serif); font-size:20px; color:#333; text-align:center; margin:0;
+    min-height: 60px;
+  }
+
+  /* ============ MAGIC PIPELINE (slide 10 visualization) ============ */
+  .mp-pipeline{
+    --mp-cell: 24px;
+    display:flex; align-items:center; justify-content:center;
+    gap:8px; margin: 14px 0 0 0;
+    font-family:var(--mono);
+  }
+  .mp-stage{
+    display:flex; flex-direction:column; align-items:center; gap:8px;
+  }
+  .mp-stage.s2{ animation-delay: 1.6s; }
+  .mp-stage.s3{ animation-delay: 3.2s; }
+  .mp-stage.s4{ animation-delay: 4.8s; }
+  .mp-stage.s5{ animation-delay: 6.4s; }
+  @keyframes mpStageReveal{
+    0%, 100% { opacity:1; transform: translateY(0); }
+  }
+  .mp-label{
+    font-family:var(--sans); font-size:14px; font-weight:700;
+    letter-spacing:2px; color:var(--accent-deep);
+    text-transform:uppercase;
+  }
+  .mp-board{
+    display:grid;
+    grid-template-columns:repeat(8, var(--mp-cell));
+    grid-template-rows:repeat(8, var(--mp-cell));
+    background:#fff;
+    box-shadow:0 4px 14px rgba(0,0,0,0.10);
+  }
+  .mp-cell{ background:#FAF6F2; position:relative; }
+  .mp-cell.alt{ background:#EFE6D6; }
+  .mp-cell.set::after,
+  .mp-cell.atk::after,
+  .mp-cell.mask::after,
+  .mp-cell.blk::after,
+  .mp-cell.rook::after{
+    content:''; position:absolute; inset:14%;
+    border-radius:18%;
+  }
+  .mp-cell.set::after{ background:#0a0a0a; }
+  .mp-cell.atk::after{
+    background:var(--accent);
+    box-shadow:0 0 8px rgba(210,69,20,0.5);
+  }
+  .mp-cell.mask::after{
+    background:transparent;
+    border:2.5px solid var(--accent);
+    border-radius:50%;
+    inset:22%;
+  }
+  .mp-cell.blk::after{
+    background:#0a0a0a;
+    box-shadow:0 0 0 3px var(--accent), 0 0 8px rgba(210,69,20,0.6);
+  }
+  .mp-cell.rook::after{
+    background:var(--accent-deep);
+    box-shadow:inset 0 2px 0 rgba(255,255,255,0.2), 0 0 10px rgba(155,47,10,0.5);
+    border-radius:14%;
+  }
+  .mp-op{
+    font-family:var(--mono); font-size:36px; font-weight:700;
+    color:var(--accent-deep);
+    padding: 0 6px;
+    display:flex; flex-direction:column; align-items:center;
+    min-width: 48px;
+  }
+  .mp-op .sub{
+    font-family:var(--sans); font-size:12px; font-weight:700;
+    letter-spacing:1.5px; color:#888;
+    margin-top:2px;
+  }
+  .mp-op.o1{ animation-delay: 1.0s; }
+  .mp-op.o2{ animation-delay: 2.4s; }
+  .mp-op.o3{ animation-delay: 4.0s; }
+  .mp-op.o4{ animation-delay: 5.6s; }
+  @keyframes mpOpReveal{
+    0%, 100% { opacity:1; transform: scale(1); }
+  }
+  .mp-index{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width: calc(8 * var(--mp-cell)); height: calc(8 * var(--mp-cell));
+    background: linear-gradient(160deg, #fff, #FAF6F2);
+    box-shadow:0 4px 14px rgba(0,0,0,0.10);
+    border:3px solid var(--accent);
+    gap: 6px;
+  }
+  .mp-index .val{
+    font-family:var(--mono); font-size:42px; font-weight:700;
+    color:var(--accent-deep); letter-spacing:1px;
+  }
+  .mp-index .note{
+    font-family:var(--sans); font-size:14px; color:#888;
+    letter-spacing:1.5px; text-transform:uppercase; font-weight:600;
+  }
+  .mp-pipeline-cap{
+    margin-top: 14px; text-align:center;
+    font-family:var(--serif); font-size:22px; color:#555; font-style:italic;
+  }
+  .mp-legend{
+    display:flex; gap: 28px; align-items:center; justify-content:center;
+    margin-top: 10px;
+    font-family:var(--mono); font-size:18px; color:#444;
+  }
+  .mp-legend .leg{ display:flex; align-items:center; gap: 8px; }
+  .mp-legend .chip{
+    width: 18px; height: 18px; border-radius: 4px;
+  }
+  .mp-legend .chip.piece{ background:#0a0a0a; }
+  .mp-legend .chip.mask{ border:2.5px solid var(--accent); border-radius:50%; background:transparent; box-sizing:border-box; }
+  .mp-legend .chip.blocker{ background:#0a0a0a; box-shadow:0 0 0 2px var(--accent); }
+  .mp-legend .chip.attack{ background:var(--accent); }
+  .mp-legend .chip.rook{ background:var(--accent-deep); border-radius:4px; }
+
+  /* ============ BITBOARD REPRESENTATION (slide 04, AND demo) ============ */
+  .bb-rep{
+    display:flex; align-items:center; justify-content:center;
+    gap:14px; margin: 22px 0 14px 0;
+  }
+  .bb-rep-card{
+    display:flex; flex-direction:column; align-items:center;
+    gap:12px;
+    padding:18px 18px 16px 18px;
+    background:#FAF6F2;
+    border-top:5px solid var(--accent);
+    box-shadow:0 3px 10px rgba(0,0,0,0.06);
+  }
+  .bb-rep-card .lbl{
+    font-family:var(--sans); font-size:18px; font-weight:700;
+    color:var(--accent-deep); letter-spacing:2px; text-transform:uppercase;
+  }
+  .bb-rep-board{
+    --c:40px;
+    display:grid;
+    grid-template-columns:repeat(8, var(--c));
+    grid-template-rows:repeat(8, var(--c));
+    background:#fff;
+    border:1px solid #d8d4cf;
+  }
+  .bb-rep-cell{
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--mono); font-size:17px;
+    color:#bdb6ac;
+    background:#FAF6F2;
+  }
+  .bb-rep-cell.alt{ background:#EFE6D6; }
+  .bb-rep-cell.lit{
+    background:var(--accent);
+    color:#fff; font-weight:700;
+  }
+  .bb-rep-cell.lit-result{
+    background:var(--accent-deep);
+    color:#fff; font-weight:700;
+  }
+  .bb-rep-hex{
+    font-family:var(--mono); font-size:13px; font-weight:600;
+    color:var(--accent-deep); letter-spacing:0;
+    text-align:center;
+    line-height:1.55;
+  }
+  .bb-rep-hex .bin-row{ display:block; white-space:nowrap; }
+  .bb-rep-hex .lbl-tag{
+    display:block;
+    font-family:var(--sans); font-size:11px; font-weight:700;
+    color:var(--muted); letter-spacing:1.5px; text-transform:uppercase;
+    margin-top:4px;
+  }
+  .bb-rep-op{
+    font-family:var(--mono); font-size:56px; font-weight:700;
+    color:var(--accent); padding: 0 6px;
+    display:flex; align-items:center; justify-content:center;
+    min-width:54px;
+    line-height:1;
+  }
+
+  /* binary + int64 display alongside bb-grid (slide 04, attacks bitboard) */
+  .bb-hex-display{
+    position:relative;
+    align-self:center;
+    min-width: 360px;
+    height: 280px;
+    font-family:var(--mono);
+  }
+  .bb-hex-display span.p1,
+  .bb-hex-display span.p2,
+  .bb-hex-display span.p3,
+  .bb-hex-display span.p4{
+    position:absolute; left:0; right:0; top:0;
+    display:flex; flex-direction:column;
+    opacity:0;
+    animation: phaseFade var(--cycle, 12s) infinite;
+  }
+  .bb-hex-display .bin-block{
+    margin-bottom: 22px;
+  }
+  .bb-hex-display .int-block .int-row{
+    display:block;
+    font-family:var(--mono); font-size:22px; font-weight:700;
+    color:var(--accent-deep);
+    line-height:1.35;
+    word-break:break-all;
+  }
+  .bb-hex-display .phase-label{
+    margin-top:22px;
+    padding-top:18px;
+    border-top:2px solid var(--accent);
+    font-family:var(--mono); font-size:22px; font-weight:700;
+    color:var(--accent-deep);
+    letter-spacing:1.5px; text-transform:uppercase;
+    line-height:1.3;
+  }
+  .bb-hex-display .bin-row{
+    display:block; white-space:nowrap;
+    font-size:17px; font-weight:700;
+    color:var(--accent-deep); letter-spacing:1.5px;
+    line-height:1.4;
+  }
+  .bb-hex-display .lbl-tag{
+    display:block; margin-top:4px;
+    font-family:var(--sans); font-size:13px; font-weight:700;
+    color:var(--muted); letter-spacing:2px; text-transform:uppercase;
+  }
+  .bb-hex-display span.p1{ animation-delay: 0s; }
+  .bb-hex-display span.p2{ animation-delay: 3s; }
+  .bb-hex-display span.p3{ animation-delay: 6s; }
+  .bb-hex-display span.p4{ animation-delay: 9s; }
+
+</style>
+</head>
+<body>
+
+<deck-stage width="1920" height="1080" data-om-id="b9cf6ab4:4" style="--deck-rail-w: 188px;" no-rail no-overlay>
+
+  <!-- ============ 1. COVER ============ -->
+  <section data-screen-label="01 Capa" data-om-id="b9cf6ab4:5" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="0">
+    <div class="cover" data-om-id="b9cf6ab4:6">
+      <div class="cover-top" data-om-id="b9cf6ab4:7">
+        <div class="left" data-om-id="b9cf6ab4:8">
+          <img src="assets/pet-eletrica.png" alt="PET Eng. Elétrica" data-om-id="b9cf6ab4:9">
+          <img src="assets/feelt.png" alt="FEELT-UFU" data-om-id="b9cf6ab4:10">
+          <img src="assets/pos-eletrica.png" alt="Pós-Elétrica UFU" data-om-id="b9cf6ab4:11">
+        </div>
+        <img class="logo-ceel" src="assets/ceel.png" alt="XXIII CEEL" data-om-id="b9cf6ab4:12">
+      </div>
+      <div class="cover-rule" data-om-id="b9cf6ab4:13"></div>
+
+      <div class="cover-main" data-om-id="b9cf6ab4:14">
+        <div class="cover-eyebrow" data-om-id="b9cf6ab4:15">Conferência de Estudos em Engenharia Elétrica · XXIII CEEL</div>
+        <h1 class="cover-title" data-om-id="b9cf6ab4:16">Desenvolvimento de um Gerador de Lances para Xadrez em Rust com Bitboards e Magic Bitboards</h1>
+        <div class="cover-subtitle" data-om-id="b9cf6ab4:17">A biblioteca <strong data-om-id="b9cf6ab4:18">ChessLib</strong>: representação eficiente e geração de movimentos</div>
+
+        <div class="cover-authors" data-om-id="b9cf6ab4:19">
+          Guilherme Borges Pagano<sup data-om-id="b9cf6ab4:20">1</sup> &nbsp;·&nbsp;
+          João Marcos de Oliveira Calixto<sup data-om-id="b9cf6ab4:21">1</sup> &nbsp;·&nbsp;
+          Augusto W. F. Veloso da Silveira<sup data-om-id="b9cf6ab4:22">1</sup><br data-om-id="b9cf6ab4:23">
+          <span class="inst" data-om-id="b9cf6ab4:24"><sup data-om-id="b9cf6ab4:25">1</sup>Faculdade de Engenharia Elétrica, Universidade Federal de Uberlândia</span>
+        </div>
+      </div>
+
+      <div class="cover-bottom" data-om-id="b9cf6ab4:26">
+        <span class="iss" data-om-id="b9cf6ab4:27">ISSN 2596-2221</span>
+        <span class="date" data-om-id="b9cf6ab4:28">Uberlândia · 18 a 21 de Maio de 2026</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. CONTEXTO, PROPOSTA E ECOSSISTEMA (fundido) ============ -->
+  <section data-screen-label="02 Contexto e Ecossistema" data-om-id="b9cf6ab4:29" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="1">
+    <div class="chrome-top" data-om-id="b9cf6ab4:30">
+      <div class="logos-left" data-om-id="b9cf6ab4:31">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:32">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:33">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:34">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:35"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:36">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:37">I · Introdução</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:38">Contexto, proposta e ecossistema</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:39"></div>
+
+      <p class="body" data-om-id="b9cf6ab4:40">
+        Historicamente, o <strong data-om-id="b9cf6ab4:41">xadrez</strong> é um grande laboratório da IA: de <strong data-om-id="b9cf6ab4:42">Deep Blue</strong>
+        a <strong data-om-id="b9cf6ab4:43">AlphaZero</strong> e <strong data-om-id="b9cf6ab4:44">Lc0</strong>, todos os sistemas dependem de uma
+        infraestrutura de <strong data-om-id="b9cf6ab4:45">geração de lances correta e eficiente</strong>. O gargalo está nas
+        <strong data-om-id="b9cf6ab4:46">peças deslizantes</strong> (torre, bispo, dama), cujos ataques dependem dinamicamente
+        da ocupação do tabuleiro.
+      </p>
+
+      <div class="tile-row" data-om-id="b9cf6ab4:47">
+        <div class="tile" data-om-id="b9cf6ab4:48">
+          <h4 data-om-id="b9cf6ab4:49">Proposta: ChessLib</h4>
+          <p data-om-id="b9cf6ab4:50">Biblioteca de xadrez em <strong data-om-id="b9cf6ab4:51">Rust</strong> com <strong data-om-id="b9cf6ab4:52">bitboards</strong> como
+          representação principal e <strong data-om-id="b9cf6ab4:53">magic bitboards</strong> para otimizar peças deslizantes.</p>
+        </div>
+        <div class="tile" data-om-id="b9cf6ab4:54">
+          <h4 data-om-id="b9cf6ab4:55">Referências do ecossistema</h4>
+          <p data-om-id="b9cf6ab4:56"><strong>Engines:</strong> Stockfish (alfa-beta + NNUE), Leela Chess Zero (redes neurais, autojogo).</p>
+          <p><strong>Bibliotecas:</strong> python-chess; crates <strong data-om-id="b9cf6ab4:84">chess</strong> e <strong data-om-id="b9cf6ab4:85">shakmaty</strong> em Rust.</p>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:61">
+      <span class="left" data-om-id="b9cf6ab4:62"><strong data-om-id="b9cf6ab4:63">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:64">02</span>
+    </div>
+  </section>
+
+  <!-- ============ 4. BITBOARDS: REPRESENTAÇÃO (AND demo) ============ -->
+  <section data-screen-label="03 Representação" data-om-id="b9cf6ab4:97" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="3">
+    <div class="chrome-top" data-om-id="b9cf6ab4:98">
+      <div class="logos-left" data-om-id="b9cf6ab4:99">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:100">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:101">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:102">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:103"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:104">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:105">III · Arquitetura</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:106">Bitboards: uma camada por peça e por cor</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:107"></div>
+
+      <p class="body" style="font-size:26px; margin-bottom:0;" data-om-id="b9cf6ab4:108">
+        O tabuleiro é mantido como uma <strong data-om-id="b9cf6ab4:109">coleção de bitboards de 64 bits</strong>:
+        um por tipo de peça e um por cor. Combinações específicas (p.&nbsp;ex. <em data-om-id="b9cf6ab4:110">cavalos brancos</em>)
+        emergem de uma única operação <strong data-om-id="b9cf6ab4:111">AND bitwise</strong>:
+      </p>
+
+      <div class="bb-rep" id="bb-rep" data-om-id="b9cf6ab4:112">
+        <!-- generated by buildBitboardRepresentation() -->
+      </div>
+
+      <p class="body" style="margin-top:auto; font-size:24px;" data-om-id="b9cf6ab4:113">
+        Cada bit corresponde a uma casa (a1 = bit&nbsp;0, h8 = bit&nbsp;63). A <strong data-om-id="b9cf6ab4:114">CPU executa
+        o AND em uma única instrução</strong> (sem laços, sem alocações), isolando
+        peças, cores ou raios em tempo praticamente constante.
+      </p>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:115">
+      <span class="left" data-om-id="b9cf6ab4:116"><strong data-om-id="b9cf6ab4:117">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:118">03</span>
+    </div>
+  </section>
+
+  <!-- ============ 5. BITBOARDS DE ATAQUES + DIAGRAM ============ -->
+  <section data-screen-label="04 Bitboards de Ataques" data-om-id="b9cf6ab4:119" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="4">
+    <div class="chrome-top" data-om-id="b9cf6ab4:120">
+      <div class="logos-left" data-om-id="b9cf6ab4:121">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:122">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:123">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:124">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:125"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:126">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:127">III · Arquitetura</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:128">Bitboards de ataques: uma peça por vez</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:129"></div>
+
+      <div class="chess-anim" id="bb-demo" data-pieces="knight,king,rook,bishop" data-square="d4" data-cycle="12s" data-om-id="b9cf6ab4:130">
+        <!-- generated by buildChessDemo() -->
+      </div>
+
+      <p class="body" style="font-size:24px; max-width:980px; margin: auto 0 0 0;" data-om-id="b9cf6ab4:132">
+          Cada tipo de peça em uma casa origem produz um <strong data-om-id="b9cf6ab4:133">bitboard de ataques</strong> distinto.
+          Operações <strong data-om-id="b9cf6ab4:134">bitwise</strong> (AND, OR, shift) executam consultas e máscaras diretamente pela CPU,
+          em tempo praticamente constante.
+        </p>
+
+      <p class="fig-note" style="margin-top:14px;" data-om-id="b9cf6ab4:140">Figura 1: tabuleiro com a peça e suas casas atacadas, o bitboard resultante (bit aceso = casa atacada) e, ao lado, as representações binária de 64 bits e em inteiro (u64).</p>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:141">
+      <span class="left" data-om-id="b9cf6ab4:142"><strong data-om-id="b9cf6ab4:143">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:144">04</span>
+    </div>
+  </section>
+
+  <!-- ============ 8. PEÇAS DE PASSO ============ -->
+  <section data-screen-label="05 Peças de Passo" data-om-id="b9cf6ab4:192" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="6">
+    <div class="chrome-top" data-om-id="b9cf6ab4:193">
+      <div class="logos-left" data-om-id="b9cf6ab4:194">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:195">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:196">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:197">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:198"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:199">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:200">III · Geração de Lances</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:201">Peças de passo: cavalo, rei e peão</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:202"></div>
+
+      <p class="body" style="font-size:26px; margin-bottom:18px;" data-om-id="b9cf6ab4:203">
+        Para peças de passo, o padrão de ataque depende <strong data-om-id="b9cf6ab4:204">apenas da casa de origem</strong>:
+        pré-computamos uma tabela com os ataques para as 64 casas e, em tempo de execução,
+        filtramos pela ocupação aliada.
+      </p>
+
+      <div class="piece-trio" id="passo-trio" data-om-id="b9cf6ab4:205">
+        <!-- generated by buildPassoTrio() -->
+      </div>
+
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:210">
+      <span class="left" data-om-id="b9cf6ab4:211"><strong data-om-id="b9cf6ab4:212">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:213">05</span>
+    </div>
+  </section>
+
+  <!-- ============ 9. PEÇAS DESLIZANTES ============ -->
+  <section data-screen-label="06 Peças Deslizantes" data-om-id="b9cf6ab4:214" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="7">
+    <div class="chrome-top" data-om-id="b9cf6ab4:215">
+      <div class="logos-left" data-om-id="b9cf6ab4:216">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:217">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:218">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:219">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:220"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:221">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:222">III · Geração de Lances</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:223">Peças deslizantes: ataques dependem da ocupação</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:224"></div>
+
+      <div class="chess-anim" id="sliding-demo" data-cycle="12s" data-om-id="b9cf6ab4:225">
+        <!-- generated by buildSlidingDemo() -->
+      </div>
+
+      <p class="body" style="font-size:24px; max-width:1000px; margin: auto 0 0 0;" data-om-id="b9cf6ab4:227">
+          O conjunto de casas atacadas por uma <strong data-om-id="b9cf6ab4:228">torre</strong> depende da configuração dos
+          <em data-om-id="b9cf6ab4:229">bloqueadores</em> ao longo de seus raios. Cada nova ocupação produz um bitboard de ataques diferente,
+          o que motiva a técnica dos <strong data-om-id="b9cf6ab4:230">magic bitboards</strong>: indexar essas configurações em
+          tabelas pré-computadas.
+        </p>
+
+      <p class="fig-note" style="margin-top:14px;" data-om-id="b9cf6ab4:236">Figura 2: torre em d4. O bitboard de ataques muda a cada configuração de bloqueadores (círculos pretos = peças que bloqueiam).</p>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:237">
+      <span class="left" data-om-id="b9cf6ab4:238"><strong data-om-id="b9cf6ab4:239">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:240">06</span>
+    </div>
+  </section>
+
+  <!-- ============ 11.5 FIG 2: MAGIC NUMBER SEARCH ============ -->
+  <section data-screen-label="07 Geração do Mágico" data-om-id="b9cf6ab4:277" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="8">
+    <div class="chrome-top" data-om-id="b9cf6ab4:278">
+      <div class="logos-left" data-om-id="b9cf6ab4:279">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:280">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:281">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:282">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:283"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:284">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:285">III · Magic Bitboards</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:286">Geração: busca por força bruta do número mágico</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:287"></div>
+
+      <svg viewBox="0 0 1700 600" width="100%" height="540" style="margin-top:4px;" xmlns="http://www.w3.org/2000/svg" aria-label="Fluxograma de busca do número mágico" data-om-id="b9cf6ab4:288">
+        <defs data-om-id="b9cf6ab4:289">
+          <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" data-om-id="b9cf6ab4:290">
+            <path d="M0,0 L10,5 L0,10 z" fill="#D24514" data-om-id="b9cf6ab4:291"></path>
+          </marker>
+          <marker id="arrDk" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" data-om-id="b9cf6ab4:292">
+            <path d="M0,0 L10,5 L0,10 z" fill="#9B2F0A" data-om-id="b9cf6ab4:293"></path>
+          </marker>
+        </defs>
+
+        <!-- Box 1: INÍCIO (oval) -->
+        <rect x="20" y="235" width="200" height="130" rx="65" fill="#9B2F0A" stroke="#9B2F0A" stroke-width="2" data-om-id="b9cf6ab4:294"></rect>
+        <text x="120" y="290" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:295">INÍCIO</text>
+        <text x="120" y="320" text-anchor="middle" font-family="Times New Roman, serif" font-size="19" fill="#fff" data-om-id="b9cf6ab4:296">para cada casa &amp; peça</text>
+
+        <!-- Arrow 1 -->
+        <line x1="220" y1="300" x2="288" y2="300" stroke="#D24514" stroke-width="3" marker-end="url(#arr)" data-om-id="b9cf6ab4:297"></line>
+
+        <!-- Box 2: PASSO 1 -->
+        <rect x="295" y="220" width="280" height="160" rx="8" fill="#fff" stroke="#D24514" stroke-width="3" data-om-id="b9cf6ab4:298"></rect>
+        <text x="435" y="258" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="15" fill="#D24514" font-weight="700" letter-spacing="2" data-om-id="b9cf6ab4:299">PASSO 1</text>
+        <text x="435" y="294" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:300">Gerar candidato</text>
+        <text x="435" y="322" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:301">aleatório de 64 bits</text>
+        <text x="435" y="355" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="17" fill="#666" data-om-id="b9cf6ab4:302">magic ← rand_u64()</text>
+
+        <!-- Arrow 2 -->
+        <line x1="575" y1="300" x2="623" y2="300" stroke="#D24514" stroke-width="3" marker-end="url(#arr)" data-om-id="b9cf6ab4:303"></line>
+
+        <!-- Box 3: PASSO 2 -->
+        <rect x="625" y="220" width="420" height="160" rx="8" fill="#fff" stroke="#D24514" stroke-width="3" data-om-id="b9cf6ab4:304"></rect>
+        <text x="835" y="258" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="15" fill="#D24514" font-weight="700" letter-spacing="2" data-om-id="b9cf6ab4:305">PASSO 2</text>
+        <text x="835" y="294" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:306">Aplicar a todas as</text>
+        <text x="835" y="322" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:307">combinações de bloqueadores</text>
+        <text x="835" y="355" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="16" fill="#666" data-om-id="b9cf6ab4:308">índice = ((occ &amp; mask) × magic) ≫ shift</text>
+
+        <!-- Arrow 3 -->
+        <line x1="1045" y1="300" x2="1078" y2="300" stroke="#D24514" stroke-width="3" marker-end="url(#arr)" data-om-id="b9cf6ab4:309"></line>
+
+        <!-- Decision: Colisão? -->
+        <polygon points="1235,160 1395,300 1235,440 1085,300" fill="#FAF6F2" stroke="#D24514" stroke-width="3" data-om-id="b9cf6ab4:310"></polygon>
+        <text x="1235" y="280" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="13" fill="#D24514" font-weight="700" letter-spacing="2" data-om-id="b9cf6ab4:311">PASSO 3</text>
+        <text x="1235" y="315" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:312">Colisão?</text>
+
+        <!-- Yes branch (up & back to PASSO 1) -->
+        <path d="M 1235,160 L 1235,100 L 435,100 L 435,220" fill="none" stroke="#9B2F0A" stroke-width="3" stroke-dasharray="8,6" marker-end="url(#arrDk)" data-om-id="b9cf6ab4:314"></path>
+        <text x="835" y="88" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="20" fill="#9B2F0A" font-weight="700" data-om-id="b9cf6ab4:313">SIM, descartar e gerar novo candidato</text>
+
+        <!-- No branch (right) -->
+        <line x1="1395" y1="300" x2="1458" y2="300" stroke="#D24514" stroke-width="3" marker-end="url(#arr)" data-om-id="b9cf6ab4:315"></line>
+        <text x="1426" y="284" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="18" fill="#1a8a3f" font-weight="700" data-om-id="b9cf6ab4:316">NÃO</text>
+
+        <!-- Box 4: PASSO 4 ✓ -->
+        <rect x="1460" y="220" width="220" height="160" rx="8" fill="#1a8a3f" stroke="#1a8a3f" stroke-width="3" data-om-id="b9cf6ab4:317"></rect>
+        <text x="1570" y="258" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="15" fill="#fff" font-weight="700" letter-spacing="2" data-om-id="b9cf6ab4:318">PASSO 4 ✓</text>
+        <text x="1570" y="294" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:319">Popular tabela</text>
+        <text x="1570" y="322" text-anchor="middle" font-family="Times New Roman, serif" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:320">de ataques</text>
+        <text x="1570" y="355" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="17" fill="#d5f0d8" data-om-id="b9cf6ab4:321">mágico válido</text>
+
+        <!-- Caption -->
+        <text x="850" y="540" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="22" fill="#666" data-om-id="b9cf6ab4:323">
+          Figura 3: busca por força bruta. Candidatos aleatórios são validados quanto à ausência de colisões no hashing.
+        </text>
+      </svg>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:324">
+      <span class="left" data-om-id="b9cf6ab4:325"><strong data-om-id="b9cf6ab4:326">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:327">07</span>
+    </div>
+  </section>
+
+  <!-- ============ 11. CONSULTA EM RUNTIME (merged: pipeline visual + Figura 3 diagram) ============ -->
+  <section data-screen-label="08 Consulta em Runtime" data-om-id="b9cf6ab4:328" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="9">
+    <div class="chrome-top" data-om-id="b9cf6ab4:329">
+      <div class="logos-left" data-om-id="b9cf6ab4:330">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:331">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:332">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:333">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:334"></div>
+    <div class="slide-body" style="--gap-title:28px;" data-om-id="b9cf6ab4:335">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:336">III · Magic Bitboards</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:337">Consulta em runtime: duas representações</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:338"></div>
+
+      <div class="formula" style="margin: 0 0 14px 0; padding: 16px 32px; font-size:26px;" data-om-id="b9cf6ab4:339">
+        <span class="kw" data-om-id="b9cf6ab4:340">index</span> <span class="op" data-om-id="b9cf6ab4:341">=</span> ((<span class="kw" data-om-id="b9cf6ab4:342">occupancy</span> <span class="op" data-om-id="b9cf6ab4:343">&amp;</span> <span class="kw" data-om-id="b9cf6ab4:344">mask</span>) <span class="op" data-om-id="b9cf6ab4:345">*</span> <span class="kw" data-om-id="b9cf6ab4:346">magic</span>) <span class="op" data-om-id="b9cf6ab4:347">&gt;&gt;</span> <span class="kw" data-om-id="b9cf6ab4:348">shift</span>
+        &nbsp;&nbsp;→&nbsp;&nbsp;
+        <span class="kw" data-om-id="b9cf6ab4:349">attacks</span> <span class="op" data-om-id="b9cf6ab4:350">=</span> <span class="kw" data-om-id="b9cf6ab4:351">table</span>[<span class="kw" data-om-id="b9cf6ab4:352">index</span>]
+      </div>
+
+      <!-- Representação 1: pipeline visual (mini-tabuleiros) -->
+      <div class="mp-pipeline" id="magic-pipeline" style="--mp-cell: 20px; margin: 4px 0 6px 0;" data-om-id="b9cf6ab4:353">
+        <!-- generated by buildMagicPipeline() -->
+      </div>
+
+      <!-- Representação 2: diagrama técnico (Figura 3) -->
+      <svg viewBox="0 0 1700 400" width="100%" height="320" style="margin-top:8px;" xmlns="http://www.w3.org/2000/svg" aria-label="Pipeline de consulta de ataques em tempo de execução" data-om-id="b9cf6ab4:354">
+        <defs data-om-id="b9cf6ab4:355">
+          <marker id="arr3m" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse" data-om-id="b9cf6ab4:356">
+            <path d="M0,0 L10,5 L0,10 z" fill="#D24514" data-om-id="b9cf6ab4:357"></path>
+          </marker>
+        </defs>
+
+        <!-- Inputs row -->
+        <rect x="40" y="60" width="220" height="80" rx="6" fill="#222" stroke="#222" data-om-id="b9cf6ab4:358"></rect>
+        <text x="150" y="92" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#FCEAD5" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:359">ENTRADA</text>
+        <text x="150" y="120" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:360">occupancy</text>
+
+        <rect x="40" y="180" width="220" height="80" rx="6" fill="#222" stroke="#222" data-om-id="b9cf6ab4:361"></rect>
+        <text x="150" y="212" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#FCEAD5" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:362">PRÉ-CALCULADO</text>
+        <text x="150" y="240" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:363">mask</text>
+
+        <!-- AND operator -->
+        <circle cx="370" cy="150" r="46" fill="#fff" stroke="#D24514" stroke-width="3" data-om-id="b9cf6ab4:364"></circle>
+        <text x="370" y="160" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="34" fill="#D24514" font-weight="700" data-om-id="b9cf6ab4:365">&amp;</text>
+
+        <line x1="260" y1="100" x2="325" y2="135" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:366"></line>
+        <line x1="260" y1="220" x2="325" y2="170" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:367"></line>
+
+        <!-- intermediate: relevant blockers -->
+        <rect x="430" y="110" width="240" height="80" rx="6" fill="#FAF6F2" stroke="#D24514" stroke-width="2" data-om-id="b9cf6ab4:368"></rect>
+        <text x="550" y="140" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#D24514" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:369">INTERMEDIÁRIO</text>
+        <text x="550" y="170" text-anchor="middle" font-family="Times New Roman, serif" font-size="20" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:370">bloqueadores relev.</text>
+
+        <line x1="416" y1="150" x2="425" y2="150" stroke="#D24514" stroke-width="3" data-om-id="b9cf6ab4:371"></line>
+
+        <!-- magic input -->
+        <rect x="430" y="240" width="240" height="80" rx="6" fill="#9B2F0A" stroke="#9B2F0A" data-om-id="b9cf6ab4:372"></rect>
+        <text x="550" y="270" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#FCEAD5" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:373">CONSTANTE ÚNICA</text>
+        <text x="550" y="298" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:374">magic</text>
+
+        <line x1="670" y1="150" x2="735" y2="190" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:375"></line>
+        <line x1="670" y1="280" x2="735" y2="220" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:376"></line>
+
+        <!-- multiply -->
+        <circle cx="780" cy="205" r="46" fill="#fff" stroke="#D24514" stroke-width="3" data-om-id="b9cf6ab4:377"></circle>
+        <text x="780" y="218" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="34" fill="#D24514" font-weight="700" data-om-id="b9cf6ab4:378">×</text>
+
+        <line x1="826" y1="205" x2="890" y2="205" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:379"></line>
+
+        <!-- shift -->
+        <rect x="895" y="165" width="180" height="80" rx="6" fill="#9B2F0A" stroke="#9B2F0A" data-om-id="b9cf6ab4:380"></rect>
+        <text x="985" y="197" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#FCEAD5" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:381">SHIFT</text>
+        <text x="985" y="225" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:382">&gt;&gt; shift</text>
+
+        <line x1="1075" y1="205" x2="1145" y2="205" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:383"></line>
+
+        <!-- index -->
+        <rect x="1150" y="165" width="180" height="80" rx="6" fill="#FAF6F2" stroke="#D24514" stroke-width="2" data-om-id="b9cf6ab4:384"></rect>
+        <text x="1240" y="197" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#D24514" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:385">ÍNDICE</text>
+        <text x="1240" y="225" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="22" fill="#1a1a1a" font-weight="700" data-om-id="b9cf6ab4:386">index</text>
+
+        <line x1="1330" y1="205" x2="1395" y2="205" stroke="#D24514" stroke-width="3" marker-end="url(#arr3m)" data-om-id="b9cf6ab4:387"></line>
+
+        <!-- attack table lookup -->
+        <rect x="1400" y="120" width="270" height="170" rx="6" fill="#1a8a3f" stroke="#1a8a3f" data-om-id="b9cf6ab4:388"></rect>
+        <text x="1535" y="155" text-anchor="middle" font-family="Helvetica, sans-serif" font-size="14" fill="#d5f0d8" letter-spacing="2" font-weight="700" data-om-id="b9cf6ab4:389">SAÍDA</text>
+        <text x="1535" y="190" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="20" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:390">attacks_table</text>
+        <text x="1535" y="220" text-anchor="middle" font-family="JetBrains Mono, monospace" font-size="20" fill="#fff" font-weight="700" data-om-id="b9cf6ab4:391">[ index ]</text>
+        <text x="1535" y="262" text-anchor="middle" font-family="Times New Roman, serif" font-size="20" font-style="italic" fill="#d5f0d8" data-om-id="b9cf6ab4:392">bitboard de ataques</text>
+
+        <!-- bottom annotations -->
+        <text x="370" y="375" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="20" fill="#666" data-om-id="b9cf6ab4:393">
+          isolar bloqueadores relevantes
+        </text>
+        <text x="780" y="375" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="20" fill="#666" data-om-id="b9cf6ab4:394">
+          multiplicação 64×64
+        </text>
+        <text x="985" y="375" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="20" fill="#666" data-om-id="b9cf6ab4:395">
+          compactar índice
+        </text>
+        <text x="1535" y="375" text-anchor="middle" font-family="Times New Roman, serif" font-style="italic" font-size="20" fill="#666" data-om-id="b9cf6ab4:396">
+          recuperar ataques
+        </text>
+      </svg>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:397">
+      <span class="left" data-om-id="b9cf6ab4:398"><strong data-om-id="b9cf6ab4:399">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:400">08</span>
+    </div>
+  </section>
+
+  <!-- ============ 12. AVALIAÇÃO EXPERIMENTAL ============ -->
+  <section data-screen-label="09 Avaliação" data-om-id="b9cf6ab4:401" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="10">
+    <div class="chrome-top" data-om-id="b9cf6ab4:402">
+      <div class="logos-left" data-om-id="b9cf6ab4:403">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:404">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:405">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:406">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:407"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:408">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:409">IV · Avaliação Experimental</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:410">Método: teste Perft</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:411"></div>
+
+      <p class="body" data-om-id="b9cf6ab4:412">
+        O <strong data-om-id="b9cf6ab4:413">Perft</strong> (performance test) enumera o número total de lances até uma dada
+        profundidade, critério padrão para comparar bibliotecas cuja responsabilidade é
+        representar o estado e enumerar movimentos.
+      </p>
+
+      <div class="two-col" style="gap:48px;" data-om-id="b9cf6ab4:414">
+        <div class="col" data-om-id="b9cf6ab4:415">
+          <h3 class="sec" data-om-id="b9cf6ab4:416">Ambiente</h3>
+          <table class="ceel" data-om-id="b9cf6ab4:417">
+            <thead data-om-id="b9cf6ab4:418"><tr data-om-id="b9cf6ab4:419"><th data-om-id="b9cf6ab4:420">Componente</th><th data-om-id="b9cf6ab4:421">Especificação</th></tr></thead>
+            <tbody data-om-id="b9cf6ab4:422">
+              <tr data-om-id="b9cf6ab4:423"><td data-om-id="b9cf6ab4:424">CPU</td><td data-om-id="b9cf6ab4:425">Intel Core i7-12800H @ 4.70&nbsp;GHz</td></tr>
+              <tr data-om-id="b9cf6ab4:426"><td data-om-id="b9cf6ab4:427">Núcleos / Threads</td><td data-om-id="b9cf6ab4:428">14 cores / 20 threads</td></tr>
+              <tr data-om-id="b9cf6ab4:429"><td data-om-id="b9cf6ab4:430">RAM</td><td data-om-id="b9cf6ab4:431">32 GB</td></tr>
+              <tr data-om-id="b9cf6ab4:432"><td data-om-id="b9cf6ab4:433">SO</td><td data-om-id="b9cf6ab4:434">Arch Linux x86_64 6.12.42-lts</td></tr>
+            </tbody>
+          </table>
+          <div class="table-caption" data-om-id="b9cf6ab4:435">Tabela I: ambiente computacional dos experimentos.</div>
+        </div>
+        <div class="col" data-om-id="b9cf6ab4:436">
+          <h3 class="sec" data-om-id="b9cf6ab4:437">Implementações avaliadas</h3>
+          <table class="ceel" data-om-id="b9cf6ab4:438">
+            <thead data-om-id="b9cf6ab4:439"><tr data-om-id="b9cf6ab4:440"><th data-om-id="b9cf6ab4:441">Biblioteca</th><th data-om-id="b9cf6ab4:442">Versão</th></tr></thead>
+            <tbody data-om-id="b9cf6ab4:443">
+              <tr class="us" data-om-id="b9cf6ab4:444"><td data-om-id="b9cf6ab4:445">ChessLib</td><td data-om-id="b9cf6ab4:446">1.0</td></tr>
+              <tr data-om-id="b9cf6ab4:447"><td data-om-id="b9cf6ab4:448">chess</td><td data-om-id="b9cf6ab4:449">3.2.0</td></tr>
+              <tr data-om-id="b9cf6ab4:450"><td data-om-id="b9cf6ab4:451">shakmaty</td><td data-om-id="b9cf6ab4:452">0.30.0</td></tr>
+              <tr data-om-id="b9cf6ab4:453"><td data-om-id="b9cf6ab4:454">Stockfish (via UCI)</td><td data-om-id="b9cf6ab4:455">17</td></tr>
+              <tr data-om-id="b9cf6ab4:456"><td data-om-id="b9cf6ab4:457">python-chess</td><td data-om-id="b9cf6ab4:458">1.11.2</td></tr>
+            </tbody>
+          </table>
+          <div class="table-caption" data-om-id="b9cf6ab4:459">Tabela II: implementações comparadas.</div>
+        </div>
+      </div>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:460">
+      <span class="left" data-om-id="b9cf6ab4:461"><strong data-om-id="b9cf6ab4:462">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:463">09</span>
+    </div>
+  </section>
+
+  <!-- ============ 13. RESULTADOS (fundido inicial + posições específicas) ============ -->
+  <section data-screen-label="10 Resultados" data-om-id="b9cf6ab4:464" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="11">
+    <div class="chrome-top" data-om-id="b9cf6ab4:465">
+      <div class="logos-left" data-om-id="b9cf6ab4:466">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:467">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:468">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:469">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:470"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:471">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:472">V · Resultados</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:473">Perft: posição inicial e cenários específicos</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:474"></div>
+
+      <table class="ceel" data-om-id="b9cf6ab4:475">
+        <thead data-om-id="b9cf6ab4:476">
+          <tr data-om-id="b9cf6ab4:477">
+            <th data-om-id="b9cf6ab4:478">Engine / Posição</th>
+            <th class="num" data-om-id="b9cf6ab4:479">d = 4 (ms)</th>
+            <th class="num" data-om-id="b9cf6ab4:480">d = 5 (ms)</th>
+            <th class="num" data-om-id="b9cf6ab4:481">d = 6 (ms)</th>
+            <th class="num" data-om-id="b9cf6ab4:482">d = 7 (s)</th>
+          </tr>
+        </thead>
+        <tbody data-om-id="b9cf6ab4:483">
+          <tr class="us" data-om-id="b9cf6ab4:484"><td data-om-id="b9cf6ab4:485">ChessLib</td><td class="num" data-om-id="b9cf6ab4:486">1.5</td><td class="num" data-om-id="b9cf6ab4:487">14.4</td><td class="num" data-om-id="b9cf6ab4:488">259.5</td><td class="num" data-om-id="b9cf6ab4:489">7.467</td></tr>
+          <tr data-om-id="b9cf6ab4:490"><td data-om-id="b9cf6ab4:491">chess</td><td class="num" data-om-id="b9cf6ab4:492">1.2</td><td class="num" data-om-id="b9cf6ab4:493">11.9</td><td class="num" data-om-id="b9cf6ab4:494">241.9</td><td class="num" data-om-id="b9cf6ab4:495">6.251</td></tr>
+          <tr data-om-id="b9cf6ab4:496"><td data-om-id="b9cf6ab4:497">shakmaty</td><td class="num" data-om-id="b9cf6ab4:498">1.6</td><td class="num" data-om-id="b9cf6ab4:499">15.8</td><td class="num" data-om-id="b9cf6ab4:500">350.2</td><td class="num" data-om-id="b9cf6ab4:501">9.318</td></tr>
+          <tr data-om-id="b9cf6ab4:502"><td data-om-id="b9cf6ab4:503">Stockfish via UCI</td><td class="num" data-om-id="b9cf6ab4:504">161.4</td><td class="num" data-om-id="b9cf6ab4:505">173.8</td><td class="num" data-om-id="b9cf6ab4:506">500.9</td><td class="num" data-om-id="b9cf6ab4:507">9.974</td></tr>
+          <tr data-om-id="b9cf6ab4:508"><td data-om-id="b9cf6ab4:509">ChessLib-Simple</td><td class="num" data-om-id="b9cf6ab4:510">23.3</td><td class="num" data-om-id="b9cf6ab4:511">N/A</td><td class="num" data-om-id="b9cf6ab4:512">N/A</td><td class="num" data-om-id="b9cf6ab4:513">N/A</td></tr>
+          <tr data-om-id="b9cf6ab4:514"><td data-om-id="b9cf6ab4:515">python-chess</td><td class="num" data-om-id="b9cf6ab4:516">235.0</td><td class="num" data-om-id="b9cf6ab4:517">N/A</td><td class="num" data-om-id="b9cf6ab4:518">N/A</td><td class="num" data-om-id="b9cf6ab4:519">N/A</td></tr>
+        </tbody>
+      </table>
+      <div class="table-caption" data-om-id="b9cf6ab4:520">Tabela III: Perft na posição inicial. ChessLib em destaque.</div>
+
+      <div class="stat-grid" style="margin-top:24px;" data-om-id="b9cf6ab4:521">
+        <div class="stat" data-om-id="b9cf6ab4:522">
+          <span class="num" data-om-id="b9cf6ab4:523">15.5×</span>
+          <div class="lbl" data-om-id="b9cf6ab4:524">vs. ChessLib-Simple (d = 4)</div>
+        </div>
+        <div class="stat" data-om-id="b9cf6ab4:525">
+          <span class="num" data-om-id="b9cf6ab4:526">156×</span>
+          <div class="lbl" data-om-id="b9cf6ab4:527">vs. python-chess (d = 4)</div>
+        </div>
+        <div class="stat" data-om-id="b9cf6ab4:528">
+          <span class="num" data-om-id="b9cf6ab4:529">~7%</span>
+          <div class="lbl" data-om-id="b9cf6ab4:530">de diferença para a crate <em data-om-id="b9cf6ab4:531">chess</em></div>
+        </div>
+      </div>
+
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:537">
+      <span class="left" data-om-id="b9cf6ab4:538"><strong data-om-id="b9cf6ab4:539">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:540">10</span>
+    </div>
+  </section>
+
+  <!-- ============ 14. DISCUSSÃO E CONCLUSÃO ============ -->
+  <section data-screen-label="11 Discussão e Conclusão" data-om-id="b9cf6ab4:541" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="12">
+    <div class="chrome-top" data-om-id="b9cf6ab4:542">
+      <div class="logos-left" data-om-id="b9cf6ab4:543">
+        <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:544">
+        <img src="assets/feelt.png" alt="" data-om-id="b9cf6ab4:545">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="" data-om-id="b9cf6ab4:546">
+    </div>
+    <div class="chrome-bar" data-om-id="b9cf6ab4:547"></div>
+    <div class="slide-body" data-om-id="b9cf6ab4:548">
+      <div class="slide-eyebrow" data-om-id="b9cf6ab4:549">VI · VII · Discussão e Conclusão</div>
+      <h2 class="slide-title" data-om-id="b9cf6ab4:550">Trade-off consciente: performance vs. plataforma</h2>
+      <div class="slide-rule" data-om-id="b9cf6ab4:551"></div>
+
+      <div class="tile-row" data-om-id="b9cf6ab4:552">
+        <div class="tile" data-om-id="b9cf6ab4:553">
+          <h4 data-om-id="b9cf6ab4:554">Impacto das escolhas estruturais</h4>
+          <p data-om-id="b9cf6ab4:555">O contraste <strong data-om-id="b9cf6ab4:556">1.5 ms</strong> (ChessLib) vs. <strong data-om-id="b9cf6ab4:557">23.3 ms</strong> (ChessLib-Simple)
+          vs. <strong data-om-id="b9cf6ab4:558">235.0 ms</strong> (python-chess) mostra que o ganho dos bitboards é estrutural,
+          não marginal.</p>
+        </div>
+        <div class="tile" data-om-id="b9cf6ab4:559">
+          <h4 data-om-id="b9cf6ab4:560">Plataforma para engines de terceiros</h4>
+          <p data-om-id="b9cf6ab4:561">Apesar da <strong>leve perda de performance</strong> em relação à crate
+          <strong data-om-id="b9cf6ab4:562">chess</strong>, a ChessLib entrega <strong data-om-id="b9cf6ab4:563">Zobrist hash</strong>
+          e uma <strong>estrutura completa para integração com <span data-om-id="b9cf6ab4:565">UCI</span></strong>,
+          permitindo que terceiros construam suas próprias engines acopladas diretamente à nossa biblioteca.</p>
+        </div>
+      </div>
+
+      <p class="body" style="margin-top:auto; font-size:32px; text-align:center;" data-om-id="b9cf6ab4:566">
+        <strong data-om-id="b9cf6ab4:567">Base sólida</strong> para busca, avaliação e IA de xadrez em Rust.
+      </p>
+    </div>
+    <div class="chrome-bottom" data-om-id="b9cf6ab4:568">
+      <span class="left" data-om-id="b9cf6ab4:569"><strong data-om-id="b9cf6ab4:570">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:571">11</span>
+    </div>
+  </section>
+
+  <!-- ============ 15. OBRIGADO ============ -->
+  <section data-screen-label="12 Obrigado" data-om-id="b9cf6ab4:572" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="13" data-deck-last-visible="">
+    <div class="closing" data-om-id="b9cf6ab4:573">
+      <h1 data-om-id="b9cf6ab4:574">Obrigado.</h1>
+      <div class="rule" data-om-id="b9cf6ab4:575"></div>
+      <div class="meta" data-om-id="b9cf6ab4:576">
+        <strong data-om-id="b9cf6ab4:577">Guilherme Borges Pagano</strong> &nbsp;·&nbsp;
+        <strong data-om-id="b9cf6ab4:578">João Marcos de Oliveira Calixto</strong> &nbsp;·&nbsp;
+        <strong data-om-id="b9cf6ab4:579">Augusto W. F. Veloso da Silveira</strong><br data-om-id="b9cf6ab4:580">
+        <span style="font-style:italic; color:var(--muted);" data-om-id="b9cf6ab4:581">Faculdade de Engenharia Elétrica, Universidade Federal de Uberlândia</span>
+      </div>
+      <div class="repo" data-om-id="b9cf6ab4:582">github.com/…/chesslib</div>
+      <div class="meta" style="margin-top:32px; font-size:24px; color:var(--muted); font-style:italic;" data-om-id="b9cf6ab4:583">
+        Referências completas no artigo · XXIII CEEL · 2026
+      </div>
+    </div>
+  </section>
+
+</deck-stage>
+
+<script>
+/* ========== Chess board builders ========== */
+(function(){
+  // Square helper: 'd4' -> {col:4, row:5, file:'d', rank:4, bitIdx: 27}
+  function sq(s){
+    const file = s.charCodeAt(0) - 96;       // a=1
+    const rank = parseInt(s.slice(1));       // 1-8
+    return {
+      col: file,
+      row: 9 - rank,
+      file, rank,
+      bitIdx: 8 * (rank - 1) + (file - 1)
+    };
+  }
+  function squareAt(col, row){
+    // col 1-8, row 1-8 (1=top in DOM but rank8 here)
+    return String.fromCharCode(96 + col) + (9 - row);
+  }
+
+  // Build the static checkered board
+  function buildBoardGrid(elGrid, opts = {}){
+    elGrid.innerHTML = '';
+    for(let r = 1; r <= 8; r++){
+      // rank label
+      const lr = document.createElement('div');
+      lr.className = 'cb-lbl-r';
+      lr.textContent = (9 - r);
+      elGrid.appendChild(lr);
+      for(let c = 1; c <= 8; c++){
+        const sqEl = document.createElement('div');
+        const isLight = ((c + r) % 2 === 0);
+        sqEl.className = 'cb-sq ' + (isLight ? 'cb-light' : 'cb-dark');
+        elGrid.appendChild(sqEl);
+      }
+    }
+    // bottom file labels: empty + a-h
+    const empty = document.createElement('div');
+    elGrid.appendChild(empty);
+    for(let c = 1; c <= 8; c++){
+      const lf = document.createElement('div');
+      lf.className = 'cb-lbl-f';
+      lf.textContent = String.fromCharCode(96 + c);
+      elGrid.appendChild(lf);
+    }
+  }
+
+  // Build phase overlay (piece + attack circles) given config
+  function buildPhase(elPhase, pieceSym, pieceSq, attacks, captures = []){
+    const p = sq(pieceSq);
+    const pos = ({col, row}) => `left:calc((${col} - 1) * var(--sq)); top:calc((${row} - 1) * var(--sq))`;
+    const html = [];
+    html.push(`<div class="ov ov-piece" style="${pos(p)}">${pieceSym}</div>`);
+    attacks.forEach(a => {
+      const ap = sq(a);
+      html.push(`<div class="ov ov-atk" style="${pos(ap)}"></div>`);
+    });
+    captures.forEach(a => {
+      const ap = sq(a);
+      html.push(`<div class="ov ov-atk ring" style="${pos(ap)}"></div>`);
+    });
+    elPhase.innerHTML = html.join('');
+  }
+
+  // Build bitboard binary grid (right side, mirror)
+  function buildBitsGrid(el){
+    el.innerHTML = '';
+    for(let r = 1; r <= 8; r++){
+      const lr = document.createElement('div');
+      lr.className = 'cb-lbl-r';
+      lr.textContent = (9 - r);
+      el.appendChild(lr);
+      for(let c = 1; c <= 8; c++){
+        const cell = document.createElement('div');
+        const isAlt = ((c + r) % 2 === 0);
+        cell.className = 'bb-cell' + (isAlt ? ' alt' : '');
+        cell.textContent = '0';
+        el.appendChild(cell);
+      }
+    }
+    const empty = document.createElement('div');
+    el.appendChild(empty);
+    for(let c = 1; c <= 8; c++){
+      const lf = document.createElement('div');
+      lf.className = 'cb-lbl-f';
+      lf.textContent = String.fromCharCode(96 + c);
+      el.appendChild(lf);
+    }
+  }
+
+  // Build a bits phase: array of grid items with class 'b' for bits set
+  function buildBitsPhase(elPhase, pieceSq, attacks){
+    const pos = ({col, row}) => `left:calc((${col} - 1) * var(--sq)); top:calc((${row} - 1) * var(--sq))`;
+    const html = [];
+    const p = sq(pieceSq);
+    html.push(`<div class="b p" style="${pos(p)}"></div>`);
+    attacks.forEach(a => {
+      const ap = sq(a);
+      html.push(`<div class="b" style="${pos(ap)}"></div>`);
+    });
+    elPhase.innerHTML = html.join('');
+  }
+
+  // Knight attack squares for any square
+  function knightAtks(s){
+    const {file, rank} = sq(s);
+    const offs = [[1,2],[2,1],[2,-1],[1,-2],[-1,-2],[-2,-1],[-2,1],[-1,2]];
+    return offs
+      .map(([df, dr]) => [file + df, rank + dr])
+      .filter(([f, r]) => f >= 1 && f <= 8 && r >= 1 && r <= 8)
+      .map(([f, r]) => String.fromCharCode(96 + f) + r);
+  }
+  // King attack squares
+  function kingAtks(s){
+    const {file, rank} = sq(s);
+    const out = [];
+    for(let df = -1; df <= 1; df++) for(let dr = -1; dr <= 1; dr++){
+      if(df === 0 && dr === 0) continue;
+      const f = file + df, r = rank + dr;
+      if(f >= 1 && f <= 8 && r >= 1 && r <= 8) out.push(String.fromCharCode(96 + f) + r);
+    }
+    return out;
+  }
+  // Pawn attack/move (white-perspective)
+  function pawnPattern(s){
+    const {file, rank} = sq(s);
+    const moves = [];
+    const captures = [];
+    // single push
+    if(rank + 1 <= 8) moves.push(String.fromCharCode(96 + file) + (rank + 1));
+    // double push from rank 2
+    if(rank === 2 && rank + 2 <= 8) moves.push(String.fromCharCode(96 + file) + (rank + 2));
+    // diagonal captures
+    if(file - 1 >= 1 && rank + 1 <= 8) captures.push(String.fromCharCode(96 + file - 1) + (rank + 1));
+    if(file + 1 <= 8 && rank + 1 <= 8) captures.push(String.fromCharCode(96 + file + 1) + (rank + 1));
+    return { moves, captures };
+  }
+  // Sliding (rook/bishop) attacks given blockers
+  function slidingAtks(s, dirs, blockerSet){
+    const {file, rank} = sq(s);
+    const out = [];
+    dirs.forEach(([df, dr]) => {
+      let f = file + df, r = rank + dr;
+      while(f >= 1 && f <= 8 && r >= 1 && r <= 8){
+        const target = String.fromCharCode(96 + f) + r;
+        out.push(target);
+        if(blockerSet.has(target)) break;
+        f += df; r += dr;
+      }
+    });
+    return out;
+  }
+  const ROOK_DIRS = [[0,1],[0,-1],[1,0],[-1,0]];
+
+  // === SLIDE 6: cycling pieces on d4, visual + bitboard ===
+  function buildBitboardDemo(){
+    const root = document.getElementById('bb-demo');
+    if(!root) return;
+    const pieces = (root.dataset.pieces || 'knight,king,rook,bishop').split(',');
+    const home = root.dataset.square || 'd4';
+    const cycle = root.dataset.cycle || '12s';
+
+    const PIECES = {
+      knight: { sym: '♞', atks: knightAtks(home), label: '♞   CAVALO em d4' },
+      king:   { sym: '♚', atks: kingAtks(home), label: '♚   REI em d4' },
+      rook:   { sym: '♜', atks: slidingAtks(home, ROOK_DIRS, new Set()), label: '♜   TORRE em d4' },
+      bishop: { sym: '♝', atks: slidingAtks(home, [[1,1],[1,-1],[-1,1],[-1,-1]], new Set()), label: '♝   BISPO em d4' },
+    };
+
+    // Left: visual board
+    const wrap = document.createElement('div');
+    wrap.className = 'cb-wrap';
+    const grid = document.createElement('div');
+    grid.className = 'cb-board';
+    buildBoardGrid(grid);
+    wrap.appendChild(grid);
+    // Phase overlays
+    pieces.forEach((name, i) => {
+      const phase = document.createElement('div');
+      phase.className = `cb-phase cb-overlay p${i+1}`;
+      phase.style.setProperty('--cycle', cycle);
+      const cfg = PIECES[name];
+      buildPhase(phase, cfg.sym, home, cfg.atks);
+      wrap.appendChild(phase);
+    });
+    root.appendChild(wrap);
+
+    // Right: bitboard binary grid
+    const wrap2 = document.createElement('div');
+    wrap2.className = 'cb-wrap';
+    const bits = document.createElement('div');
+    bits.className = 'bb-grid';
+    buildBitsGrid(bits);
+    wrap2.appendChild(bits);
+    pieces.forEach((name, i) => {
+      const phase = document.createElement('div');
+      phase.className = `bb-phase p${i+1}`;
+      phase.style.setProperty('--cycle', cycle);
+      const cfg = PIECES[name];
+      buildBitsPhase(phase, home, cfg.atks);
+      wrap2.appendChild(phase);
+    });
+
+    root.appendChild(wrap2);
+
+    // Side panel: binary + int64 decimal value, animated per phase
+    const hexDisp = document.createElement('div');
+    hexDisp.className = 'bb-hex-display';
+    hexDisp.style.setProperty('--cycle', cycle);
+    pieces.forEach((name, i) => {
+      const cfg = PIECES[name];
+      const v = bbFromSquares(cfg.atks); // attacks only; piece bit shown separately
+      const span = document.createElement('span');
+      span.className = `p${i+1}`;
+      span.innerHTML =
+        `<div class="bin-block">${bbBinHTML(v)}<span class="lbl-tag">binário · 64 bits</span></div>`+
+        `<div class="int-block"><span class="int-row">${v.toString()}</span><span class="lbl-tag">int64 · decimal (u64)</span></div>`+
+        `<div class="phase-label">${cfg.label}</div>`;
+      hexDisp.appendChild(span);
+    });
+    root.appendChild(hexDisp);
+  }
+
+  // === SLIDE 4: bitboard representation, AND demo (white & knights = white knights) ===
+  function buildBitboardRepresentation(){
+    const root = document.getElementById('bb-rep');
+    if(!root) return;
+
+    // White pieces in starting position: ranks 1 and 2
+    const whiteSqs = [];
+    for(let r=1; r<=2; r++){
+      for(let f=1; f<=8; f++){
+        whiteSqs.push(String.fromCharCode(96+f) + r);
+      }
+    }
+    // All knights in starting position
+    const knightSqs = ['b1','g1','b8','g8'];
+    // AND result: white knights
+    const whiteKnightSqs = ['b1','g1'];
+
+    function makeBoard(squares, resultStyle){
+      const board = document.createElement('div');
+      board.className = 'bb-rep-board';
+      const set = new Set(squares);
+      for(let r=8; r>=1; r--){
+        for(let f=1; f<=8; f++){
+          const s = String.fromCharCode(96+f) + r;
+          const cell = document.createElement('div');
+          const isLight = ((f + r) % 2 === 0);
+          let cls = 'bb-rep-cell' + (isLight ? '' : ' alt');
+          if(set.has(s)) cls += (resultStyle ? ' lit-result' : ' lit');
+          cell.className = cls;
+          cell.textContent = set.has(s) ? '1' : '0';
+          board.appendChild(cell);
+        }
+      }
+      return board;
+    }
+
+    function card(label, squares, resultStyle=false){
+      const c = document.createElement('div');
+      c.className = 'bb-rep-card';
+      const l = document.createElement('div');
+      l.className = 'lbl';
+      l.textContent = label;
+      c.appendChild(l);
+      c.appendChild(makeBoard(squares, resultStyle));
+      const v = bbFromSquares(squares);
+      const hex = document.createElement('div');
+      hex.className = 'bb-rep-hex';
+      hex.innerHTML = `${bbBinHTML(v)}<span class="lbl-tag">binário · 64 bits</span>`;
+      c.appendChild(hex);
+      return c;
+    }
+    function op(symbol){
+      const o = document.createElement('div');
+      o.className = 'bb-rep-op';
+      o.textContent = symbol;
+      return o;
+    }
+
+    root.appendChild(card('Peças brancas', whiteSqs));
+    root.appendChild(op('&'));
+    root.appendChild(card('Cavalos', knightSqs));
+    root.appendChild(op('='));
+    root.appendChild(card('Cavalos brancos', whiteKnightSqs, true));
+  }
+
+  // 64-bit bitboard helpers (BigInt)
+  function bbFromSquares(squares){
+    let v = 0n;
+    for(const s of squares){
+      const file = s.charCodeAt(0) - 96;
+      const rank = parseInt(s.slice(1));
+      v |= 1n << BigInt(8*(rank-1)+(file-1));
+    }
+    return v;
+  }
+  // Returns HTML: 64-bit binary split in 2 lines (32 bits each)
+  function bbBinHTML(v){
+    const bin = v.toString(2).padStart(64, '0');
+    return `<span class="bin-row">${bin.slice(0,32)}</span><span class="bin-row">${bin.slice(32)}</span>`;
+  }
+
+  // === SLIDE 8: three small boards ===
+  function buildPassoTrio(){
+    const root = document.getElementById('passo-trio');
+    if(!root) return;
+
+    function smallBoard(title, desc, pieceSym, pieceSq, atks, caps = []){
+      const card = document.createElement('div');
+      card.className = 'piece-card';
+      card.innerHTML = `<h4>${title}</h4>`;
+      const anim = document.createElement('div');
+      anim.className = 'chess-anim compact';
+      anim.style.gap = '0';
+      anim.style.margin = '0';
+      const wrap = document.createElement('div');
+      wrap.className = 'cb-wrap';
+      const grid = document.createElement('div');
+      grid.className = 'cb-board';
+      buildBoardGrid(grid);
+      wrap.appendChild(grid);
+      const ovl = document.createElement('div');
+      ovl.className = 'cb-overlay';
+      buildPhase(ovl, pieceSym, pieceSq, atks, caps);
+      wrap.appendChild(ovl);
+      anim.appendChild(wrap);
+      card.appendChild(anim);
+      const d = document.createElement('p');
+      d.className = 'desc';
+      d.innerHTML = desc;
+      card.appendChild(d);
+      root.appendChild(card);
+    }
+
+    smallBoard(
+      'CAVALO',
+      '8 ataques em <strong>L</strong>, independente da ocupação',
+      '♞', 'd4', knightAtks('d4')
+    );
+    smallBoard(
+      'REI',
+      'Até 8 ataques adjacentes, uma casa em qualquer direção',
+      '♚', 'd4', kingAtks('d4')
+    );
+    const pp = pawnPattern('d2');
+    smallBoard(
+      'PEÃO',
+      'Avanço de 1 ou 2 casas (•) e capturas diagonais (○)',
+      '♟', 'd2', pp.moves, pp.captures
+    );
+  }
+
+  // === SLIDE 9: rook with cycling blockers ===
+  function buildSlidingDemo(){
+    const root = document.getElementById('sliding-demo');
+    if(!root) return;
+    const cycle = root.dataset.cycle || '14s';
+
+    const scenes = [
+      { blockers: [], piece: 'd4', label: 'SEM BLOQUEADORES · 14 ataques' },
+      { blockers: ['d6'], piece: 'd4', label: '+ d6 · raio norte truncado' },
+      { blockers: ['d6','f4'], piece: 'd4', label: '+ d6, f4 · 2 raios truncados' },
+      { blockers: ['d6','f4','d2','b4'], piece: 'd4', label: '+ d6, f4, d2, b4 · todos truncados' },
+    ];
+
+    const wrap = document.createElement('div');
+    wrap.className = 'cb-wrap';
+    const grid = document.createElement('div');
+    grid.className = 'cb-board';
+    buildBoardGrid(grid);
+    wrap.appendChild(grid);
+
+    scenes.forEach((scene, i) => {
+      const phase = document.createElement('div');
+      phase.className = `cb-phase cb-overlay p${i+1}`;
+      phase.style.setProperty('--cycle', cycle);
+      const blockerSet = new Set(scene.blockers);
+      const atks = slidingAtks(scene.piece, ROOK_DIRS, blockerSet);
+      const captures = atks.filter(a => blockerSet.has(a));
+      const quiets = atks.filter(a => !blockerSet.has(a));
+      const pos = ({col, row}) => `left:calc((${col} - 1) * var(--sq)); top:calc((${row} - 1) * var(--sq))`;
+      const html = [];
+      const p = sq(scene.piece);
+      html.push(`<div class="ov ov-piece" style="${pos(p)}">♜</div>`);
+      quiets.forEach(a => {
+        const ap = sq(a);
+        html.push(`<div class="ov ov-atk" style="${pos(ap)}"></div>`);
+      });
+      captures.forEach(a => {
+        const ap = sq(a);
+        html.push(`<div class="ov ov-atk ring" style="${pos(ap)}"></div>`);
+      });
+      scene.blockers.forEach(b => {
+        const bp = sq(b);
+        html.push(`<div class="ov" style="${pos(bp)}"><div class="ov-blocker"></div></div>`);
+      });
+      phase.innerHTML = html.join('');
+      wrap.appendChild(phase);
+    });
+
+    root.appendChild(wrap);
+
+    // Right side: bitboard binary mirror
+    const wrap2 = document.createElement('div');
+    wrap2.className = 'cb-wrap';
+    const bits = document.createElement('div');
+    bits.className = 'bb-grid';
+    buildBitsGrid(bits);
+    wrap2.appendChild(bits);
+    scenes.forEach((scene, i) => {
+      const phase = document.createElement('div');
+      phase.className = `bb-phase p${i+1}`;
+      phase.style.setProperty('--cycle', cycle);
+      const blockerSet = new Set(scene.blockers);
+      const atks = slidingAtks(scene.piece, ROOK_DIRS, blockerSet);
+      const pos = ({col, row}) => `left:calc((${col} - 1) * var(--sq)); top:calc((${row} - 1) * var(--sq))`;
+      const html = [];
+      const p = sq(scene.piece);
+      html.push(`<div class="b p" style="${pos(p)}"></div>`);
+      atks.forEach(a => {
+        const ap = sq(a);
+        html.push(`<div class="b" style="${pos(ap)}"></div>`);
+      });
+      phase.innerHTML = html.join('');
+      wrap2.appendChild(phase);
+    });
+    root.appendChild(wrap2);
+
+    // Side panel: binary + int64 decimal value, animated per phase
+    const hexDisp = document.createElement('div');
+    hexDisp.className = 'bb-hex-display';
+    hexDisp.style.setProperty('--cycle', cycle);
+    scenes.forEach((scene, i) => {
+      const blockerSet = new Set(scene.blockers);
+      const atks = slidingAtks(scene.piece, ROOK_DIRS, blockerSet);
+      const v = bbFromSquares(atks);
+      const span = document.createElement('span');
+      span.className = `p${i+1}`;
+      span.innerHTML =
+        `<div class="bin-block">${bbBinHTML(v)}<span class="lbl-tag">binário · 64 bits</span></div>`+
+        `<div class="int-block"><span class="int-row">${v.toString()}</span><span class="lbl-tag">int64 · decimal (u64)</span></div>`+
+        `<div class="phase-label">${scene.label}</div>`;
+      hexDisp.appendChild(span);
+    });
+    root.appendChild(hexDisp);
+  }
+
+  function init(){
+    buildBitboardRepresentation();
+    buildBitboardDemo();
+    buildPassoTrio();
+    buildSlidingDemo();
+    buildMagicPipeline();
+  }
+
+  // === SLIDE 10: Magic bitboard pipeline visualization ===
+  function buildMagicPipeline(){
+    const root = document.getElementById('magic-pipeline');
+    if(!root) return;
+
+    // Setup: rook on d4, with some pieces on board
+    const rookSq = 'd4';
+    const occSquares = ['a1','c1','e1','g1','a8','c8','g8','b4','d6','f4','d4'];
+
+    // Rook mask: same-rank + same-file, excluding edges and origin
+    function rookMask(s){
+      const {file, rank} = sq(s);
+      const out = [];
+      // file: rank 2..7 (excluding edges 1 and 8) on the same file
+      for(let r = 2; r <= 7; r++) if(r !== rank) out.push(String.fromCharCode(96 + file) + r);
+      // rank: file b..g (excluding edges) on the same rank
+      for(let f = 2; f <= 7; f++) if(f !== file) out.push(String.fromCharCode(96 + f) + rank);
+      return out;
+    }
+    const maskSquares = rookMask(rookSq);
+    const occSet = new Set(occSquares);
+    const maskSet = new Set(maskSquares);
+    const blockerSquares = maskSquares.filter(s => occSet.has(s));
+    const blockerSet = new Set(blockerSquares);
+    const attackSquares = slidingAtks(rookSq, ROOK_DIRS, blockerSet);
+
+    // Build a mini bitboard
+    function miniBoard(opts){
+      // opts: { setSquares: [], maskSquares: [], blockerSquares: [], atkSquares: [], piece: 'd4' }
+      const board = document.createElement('div');
+      board.className = 'mp-board';
+      for(let r = 1; r <= 8; r++){
+        for(let c = 1; c <= 8; c++){
+          const cell = document.createElement('div');
+          const isAlt = ((c + r) % 2 === 0);
+          let cls = 'mp-cell' + (isAlt ? ' alt' : '');
+          const s = squareAt(c, 9 - r); // grid row r=1 is rank 8
+          if(opts.piece === s) cls += ' rook';
+          else if(opts.atkSquares && opts.atkSquares.includes(s)) cls += ' atk';
+          else if(opts.blockerSquares && opts.blockerSquares.includes(s)) cls += ' blk';
+          else if(opts.setSquares && opts.setSquares.includes(s)) cls += ' set';
+          else if(opts.maskSquares && opts.maskSquares.includes(s)) cls += ' mask';
+          cell.className = cls;
+          board.appendChild(cell);
+        }
+      }
+      return board;
+    }
+
+    function stage(num, label, content){
+      const s = document.createElement('div');
+      s.className = `mp-stage s${num}`;
+      const l = document.createElement('div');
+      l.className = 'mp-label';
+      l.textContent = label;
+      s.appendChild(l);
+      s.appendChild(content);
+      return s;
+    }
+    function op(num, main, sub){
+      const o = document.createElement('div');
+      o.className = `mp-op o${num}`;
+      o.innerHTML = `<div>${main}</div>` + (sub ? `<div class="sub">${sub}</div>` : '');
+      return o;
+    }
+
+    // Stage 1: OCCUPANCY
+    root.appendChild(stage(1, 'OCCUPANCY', miniBoard({
+      setSquares: occSquares.filter(s => s !== rookSq),
+      piece: rookSq
+    })));
+    root.appendChild(op(1, '&amp;', ''));
+    // Stage 2: MASK
+    root.appendChild(stage(2, 'MASK', miniBoard({
+      maskSquares: maskSquares,
+      piece: rookSq
+    })));
+    root.appendChild(op(2, '=', ''));
+    // Stage 3: BLOCKERS
+    root.appendChild(stage(3, 'BLOCKERS', miniBoard({
+      blockerSquares: blockerSquares,
+      piece: rookSq
+    })));
+    root.appendChild(op(3, '×', '× magic ≫ shift'));
+    // Stage 4: INDEX
+    const idxBox = document.createElement('div');
+    idxBox.className = 'mp-index';
+    idxBox.innerHTML = '<div class="val">0x42</div><div class="note">índice</div>';
+    root.appendChild(stage(4, 'INDEX', idxBox));
+    root.appendChild(op(4, '→', 'table[ idx ]'));
+    // Stage 5: ATTACKS
+    root.appendChild(stage(5, 'ATTACKS', miniBoard({
+      atkSquares: attackSquares,
+      piece: rookSq
+    })));
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+</body>
+</html>
