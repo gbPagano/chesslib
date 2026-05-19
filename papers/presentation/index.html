@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
-<title>ChessLib · XXIII CEEL</title>
+<title>Chesslib · XXIII CEEL</title>
 <script src="deck-stage.js"></script>
 <style>
   :root{
@@ -590,6 +590,104 @@
     min-height: 60px;
   }
 
+  /* ============ MAGIC BITBOARD INTRO (slide 07) ============ */
+  .mb-hash{
+    display:flex; align-items:center; gap:48px;
+    margin: 6px 0 4px 0;
+  }
+  .mb-cols{
+    display:flex; flex-direction:column; gap:4px;
+    flex:1;
+  }
+  .mb-row{
+    display:flex; align-items:center; gap:18px;
+    font-family:var(--mono);
+  }
+  .mb-tag{
+    width:182px; flex-shrink:0;
+    font-family:var(--sans); font-weight:700; font-size:15px; letter-spacing:2px;
+    text-transform:uppercase;
+    text-align:right;
+  }
+  .mb-tag.b{ color:#C98B2A; }
+  .mb-tag.m{ color:var(--accent-deep); }
+  .mb-tag.p{ color:var(--accent); }
+  .mb-tag.i{ color:#1a8a3f; }
+  .mb-bits{
+    font-family:var(--mono); font-size:17px; font-weight:500;
+    color:#c5beb3;
+    letter-spacing: 2px;
+    line-height:1.25;
+    white-space:nowrap;
+  }
+  .mb-bits b{ font-weight:700; font-style:normal; }
+  .mb-bits.b b{ color:#C98B2A; }
+  .mb-bits.m b{ color:var(--accent-deep); }
+  .mb-bits.p b{ color:var(--accent); }
+  .mb-bits.i b{ color:#1a8a3f; }
+  .mb-op-row{
+    margin-left: 200px;
+    height: 22px;
+    align-items:center;
+  }
+  .mb-op{
+    font-family:var(--mono); font-size:22px; font-weight:700;
+    color:var(--accent-deep);
+    letter-spacing:1px;
+  }
+  .mb-idx-val{
+    font-family:var(--mono); font-size:22px; font-weight:700;
+    color:#1a8a3f;
+    margin-left:14px;
+    white-space:nowrap;
+  }
+  .mb-attk{
+    flex-shrink:0;
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .mb-attk-arrow{
+    font-family:var(--mono); font-size:20px; font-weight:700;
+    color:var(--accent-deep);
+    display:flex; align-items:center; gap:8px;
+  }
+  .mb-attk-arrow code{
+    background:#FAF6F2; padding:4px 10px;
+    border-left:4px solid var(--accent);
+    font-family:var(--mono); color:#1a1a1a;
+  }
+  .mb-attk-cap{
+    font-family:var(--serif); font-style:italic; font-size:16px; color:#666;
+    text-align:center; max-width: 280px;
+  }
+  .mb-mini{
+    display:grid;
+    grid-template-columns:repeat(8, 34px);
+    grid-template-rows:repeat(8, 34px);
+    background:#fff;
+    box-shadow:0 4px 14px rgba(0,0,0,0.10);
+  }
+  .mb-mini .c{ background:#FAF6F2; position:relative; }
+  .mb-mini .c.alt{ background:#EFE6D6; }
+  .mb-mini .c.rook::after{
+    content:'♜';
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:#0a0a0a;
+    font-size:30px; line-height:1;
+  }
+  .mb-mini .c.atk::after{
+    content:'×';
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--accent); font-weight:700; font-size:24px;
+    font-family:var(--mono); line-height:1;
+  }
+  .mb-mini .c.blk::after{
+    content:''; position:absolute; inset:22%;
+    background:#0a0a0a; border-radius:50%;
+    box-shadow:0 0 0 3px var(--accent), 0 0 8px rgba(210,69,20,0.6);
+  }
+
   /* ============ MAGIC PIPELINE (slide 10 visualization) ============ */
   .mp-pipeline{
     --mp-cell: 24px;
@@ -838,7 +936,7 @@
       <div class="cover-main" data-om-id="b9cf6ab4:14">
         <div class="cover-eyebrow" data-om-id="b9cf6ab4:15">Conferência de Estudos em Engenharia Elétrica · XXIII CEEL</div>
         <h1 class="cover-title" data-om-id="b9cf6ab4:16">Desenvolvimento de um Gerador de Lances para Xadrez em Rust com Bitboards e Magic Bitboards</h1>
-        <div class="cover-subtitle" data-om-id="b9cf6ab4:17">A biblioteca <strong data-om-id="b9cf6ab4:18">ChessLib</strong>: representação eficiente e geração de movimentos</div>
+        <div class="cover-subtitle" data-om-id="b9cf6ab4:17">A biblioteca <strong data-om-id="b9cf6ab4:18">Chesslib</strong>: representação eficiente e geração de movimentos</div>
 
         <div class="cover-authors" data-om-id="b9cf6ab4:19">
           Guilherme Borges Pagano<sup data-om-id="b9cf6ab4:20">1</sup> &nbsp;·&nbsp;
@@ -872,7 +970,7 @@
 
       <p class="body" data-om-id="b9cf6ab4:40">
         Historicamente, o <strong data-om-id="b9cf6ab4:41">xadrez</strong> é um grande laboratório da IA: de <strong data-om-id="b9cf6ab4:42">Deep Blue</strong>
-        a <strong data-om-id="b9cf6ab4:43">AlphaZero</strong> e <strong data-om-id="b9cf6ab4:44">Lc0</strong>, todos os sistemas dependem de uma
+        a <strong data-om-id="b9cf6ab4:43">Stockfish</strong> e <strong data-om-id="b9cf6ab4:44">AlphaZero</strong>, todos os sistemas dependem de uma
         infraestrutura de <strong data-om-id="b9cf6ab4:45">geração de lances correta e eficiente</strong>. O gargalo está nas
         <strong data-om-id="b9cf6ab4:46">peças deslizantes</strong> (torre, bispo, dama), cujos ataques dependem dinamicamente
         da ocupação do tabuleiro.
@@ -880,7 +978,7 @@
 
       <div class="tile-row" data-om-id="b9cf6ab4:47">
         <div class="tile" data-om-id="b9cf6ab4:48">
-          <h4 data-om-id="b9cf6ab4:49">Proposta: ChessLib</h4>
+          <h4 data-om-id="b9cf6ab4:49">Proposta: Chesslib</h4>
           <p data-om-id="b9cf6ab4:50">Biblioteca de xadrez em <strong data-om-id="b9cf6ab4:51">Rust</strong> com <strong data-om-id="b9cf6ab4:52">bitboards</strong> como
           representação principal e <strong data-om-id="b9cf6ab4:53">magic bitboards</strong> para otimizar peças deslizantes.</p>
         </div>
@@ -892,7 +990,7 @@
       </div>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:61">
-      <span class="left" data-om-id="b9cf6ab4:62"><strong data-om-id="b9cf6ab4:63">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="left" data-om-id="b9cf6ab4:62"><strong data-om-id="b9cf6ab4:63">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
       <span class="right" data-om-id="b9cf6ab4:64">02</span>
     </div>
   </section>
@@ -924,12 +1022,12 @@
 
       <p class="body" style="margin-top:auto; font-size:24px;" data-om-id="b9cf6ab4:113">
         Cada bit corresponde a uma casa (a1 = bit&nbsp;0, h8 = bit&nbsp;63). A <strong data-om-id="b9cf6ab4:114">CPU executa
-        o AND em uma única instrução</strong> (sem laços, sem alocações), isolando
+        o AND em uma única instrução</strong>, isolando
         peças, cores ou raios em tempo praticamente constante.
       </p>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:115">
-      <span class="left" data-om-id="b9cf6ab4:116"><strong data-om-id="b9cf6ab4:117">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="left" data-om-id="b9cf6ab4:116"><strong data-om-id="b9cf6ab4:117">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
       <span class="right" data-om-id="b9cf6ab4:118">03</span>
     </div>
   </section>
@@ -962,7 +1060,7 @@
       <p class="fig-note" style="margin-top:14px;" data-om-id="b9cf6ab4:140">Figura 1: tabuleiro com a peça e suas casas atacadas, o bitboard resultante (bit aceso = casa atacada) e, ao lado, as representações binária de 64 bits e em inteiro (u64).</p>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:141">
-      <span class="left" data-om-id="b9cf6ab4:142"><strong data-om-id="b9cf6ab4:143">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="left" data-om-id="b9cf6ab4:142"><strong data-om-id="b9cf6ab4:143">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
       <span class="right" data-om-id="b9cf6ab4:144">04</span>
     </div>
   </section>
@@ -994,7 +1092,7 @@
 
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:210">
-      <span class="left" data-om-id="b9cf6ab4:211"><strong data-om-id="b9cf6ab4:212">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="left" data-om-id="b9cf6ab4:211"><strong data-om-id="b9cf6ab4:212">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
       <span class="right" data-om-id="b9cf6ab4:213">05</span>
     </div>
   </section>
@@ -1028,13 +1126,76 @@
       <p class="fig-note" style="margin-top:14px;" data-om-id="b9cf6ab4:236">Figura 2: torre em d4. O bitboard de ataques muda a cada configuração de bloqueadores (círculos pretos = peças que bloqueiam).</p>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:237">
-      <span class="left" data-om-id="b9cf6ab4:238"><strong data-om-id="b9cf6ab4:239">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
+      <span class="left" data-om-id="b9cf6ab4:238"><strong data-om-id="b9cf6ab4:239">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
       <span class="right" data-om-id="b9cf6ab4:240">06</span>
     </div>
   </section>
 
+  <!-- ============ 11.4 INTRO MAGIC BITBOARDS ============ -->
+  <section data-screen-label="07 Magic Bitboards" data-om-id="b9cf6ab4:600" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text">
+    <div class="chrome-top">
+      <div class="logos-left">
+        <img src="assets/pet-eletrica.png" alt="">
+        <img src="assets/feelt.png" alt="">
+      </div>
+      <img class="logo-ceel" src="assets/ceel.png" alt="">
+    </div>
+    <div class="chrome-bar"></div>
+    <div class="slide-body">
+      <div class="slide-eyebrow">III · Magic Bitboards</div>
+      <h2 class="slide-title">Magic bitboards: hash perfeito por multiplicação</h2>
+      <div class="slide-rule"></div>
+
+      <p class="body" style="font-size:24px; max-width:1500px; margin: 0 0 18px 0;">
+        Para cada par <em>(casa, peça deslizante)</em>, escolhe-se uma constante de 64 bits — o
+        <strong>número mágico</strong> — tal que <code style="font-family:var(--mono); color:var(--accent-deep); font-weight:700;">(blockers × magic) ≫ shift</code>
+        produza um índice <strong>único e compacto</strong>, capaz de endereçar diretamente uma tabela
+        pré-calculada de ataques.
+      </p>
+
+      <div class="mb-hash">
+        <div class="mb-cols">
+          <div class="mb-row">
+            <span class="mb-tag b">Bloqueadores</span>
+            <div class="mb-bits b" data-bits="0000000000000000000010000000000000100000000000000000000000000000"></div>
+          </div>
+          <div class="mb-row mb-op-row"><span class="mb-op">×</span></div>
+          <div class="mb-row">
+            <span class="mb-tag m">Magic</span>
+            <div class="mb-bits m" data-bits="1010000110000000001000101000000001000000100000100000010000000000"></div>
+          </div>
+          <div class="mb-row mb-op-row"><span class="mb-op">=</span></div>
+          <div class="mb-row">
+            <span class="mb-tag p">Bloq × Magic</span>
+            <div class="mb-bits p" data-bits="0010000011010110101001100110110011010011001110100110001011001100"></div>
+          </div>
+          <div class="mb-row mb-op-row"><span class="mb-op">≫ 54</span></div>
+          <div class="mb-row">
+            <span class="mb-tag i">Índice</span>
+            <div class="mb-bits i" data-bits="0000000000000000000000000000000000000000000000000000000010000011"></div>
+            <span class="mb-idx-val">index: 131</span>
+          </div>
+        </div>
+
+        <div class="mb-attk">
+          <div class="mb-attk-arrow">→&nbsp;<code>table[131]</code></div>
+          <div class="mb-mini" id="mb-board"></div>
+          <div class="mb-attk-cap">bitboard de ataques pré-calculado</div>
+        </div>
+      </div>
+
+      <p class="fig-note" style="margin-top:40px;">
+        A multiplicação por uma constante "mágica" funciona como um <em>hash perfeito</em>, comprimindo bilhões de configurações possíveis de bloqueadores em poucos milhares de slots.
+      </p>
+    </div>
+    <div class="chrome-bottom">
+      <span class="left"><strong>XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
+      <span class="right">07</span>
+    </div>
+  </section>
+
   <!-- ============ 11.5 FIG 2: MAGIC NUMBER SEARCH ============ -->
-  <section data-screen-label="07 Geração do Mágico" data-om-id="b9cf6ab4:277" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="8">
+  <section data-screen-label="08 Geração do Mágico" data-om-id="b9cf6ab4:277" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="8">
     <div class="chrome-top" data-om-id="b9cf6ab4:278">
       <div class="logos-left" data-om-id="b9cf6ab4:279">
         <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:280">
@@ -1113,13 +1274,13 @@
       </svg>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:324">
-      <span class="left" data-om-id="b9cf6ab4:325"><strong data-om-id="b9cf6ab4:326">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
-      <span class="right" data-om-id="b9cf6ab4:327">07</span>
+      <span class="left" data-om-id="b9cf6ab4:325"><strong data-om-id="b9cf6ab4:326">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:327">08</span>
     </div>
   </section>
 
   <!-- ============ 11. CONSULTA EM RUNTIME (merged: pipeline visual + Figura 3 diagram) ============ -->
-  <section data-screen-label="08 Consulta em Runtime" data-om-id="b9cf6ab4:328" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="9">
+  <section data-screen-label="09 Consulta em Runtime" data-om-id="b9cf6ab4:328" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="9">
     <div class="chrome-top" data-om-id="b9cf6ab4:329">
       <div class="logos-left" data-om-id="b9cf6ab4:330">
         <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:331">
@@ -1226,13 +1387,13 @@
       </svg>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:397">
-      <span class="left" data-om-id="b9cf6ab4:398"><strong data-om-id="b9cf6ab4:399">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
-      <span class="right" data-om-id="b9cf6ab4:400">08</span>
+      <span class="left" data-om-id="b9cf6ab4:398"><strong data-om-id="b9cf6ab4:399">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:400">09</span>
     </div>
   </section>
 
   <!-- ============ 12. AVALIAÇÃO EXPERIMENTAL ============ -->
-  <section data-screen-label="09 Avaliação" data-om-id="b9cf6ab4:401" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="10">
+  <section data-screen-label="10 Avaliação" data-om-id="b9cf6ab4:401" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="10">
     <div class="chrome-top" data-om-id="b9cf6ab4:402">
       <div class="logos-left" data-om-id="b9cf6ab4:403">
         <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:404">
@@ -1271,7 +1432,7 @@
           <table class="ceel" data-om-id="b9cf6ab4:438">
             <thead data-om-id="b9cf6ab4:439"><tr data-om-id="b9cf6ab4:440"><th data-om-id="b9cf6ab4:441">Biblioteca</th><th data-om-id="b9cf6ab4:442">Versão</th></tr></thead>
             <tbody data-om-id="b9cf6ab4:443">
-              <tr class="us" data-om-id="b9cf6ab4:444"><td data-om-id="b9cf6ab4:445">ChessLib</td><td data-om-id="b9cf6ab4:446">1.0</td></tr>
+              <tr class="us" data-om-id="b9cf6ab4:444"><td data-om-id="b9cf6ab4:445">Chesslib</td><td data-om-id="b9cf6ab4:446">1.0</td></tr>
               <tr data-om-id="b9cf6ab4:447"><td data-om-id="b9cf6ab4:448">chess</td><td data-om-id="b9cf6ab4:449">3.2.0</td></tr>
               <tr data-om-id="b9cf6ab4:450"><td data-om-id="b9cf6ab4:451">shakmaty</td><td data-om-id="b9cf6ab4:452">0.30.0</td></tr>
               <tr data-om-id="b9cf6ab4:453"><td data-om-id="b9cf6ab4:454">Stockfish (via UCI)</td><td data-om-id="b9cf6ab4:455">17</td></tr>
@@ -1283,13 +1444,13 @@
       </div>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:460">
-      <span class="left" data-om-id="b9cf6ab4:461"><strong data-om-id="b9cf6ab4:462">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
-      <span class="right" data-om-id="b9cf6ab4:463">09</span>
+      <span class="left" data-om-id="b9cf6ab4:461"><strong data-om-id="b9cf6ab4:462">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:463">10</span>
     </div>
   </section>
 
   <!-- ============ 13. RESULTADOS (fundido inicial + posições específicas) ============ -->
-  <section data-screen-label="10 Resultados" data-om-id="b9cf6ab4:464" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="11">
+  <section data-screen-label="11 Resultados" data-om-id="b9cf6ab4:464" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="11">
     <div class="chrome-top" data-om-id="b9cf6ab4:465">
       <div class="logos-left" data-om-id="b9cf6ab4:466">
         <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:467">
@@ -1314,20 +1475,20 @@
           </tr>
         </thead>
         <tbody data-om-id="b9cf6ab4:483">
-          <tr class="us" data-om-id="b9cf6ab4:484"><td data-om-id="b9cf6ab4:485">ChessLib</td><td class="num" data-om-id="b9cf6ab4:486">1.5</td><td class="num" data-om-id="b9cf6ab4:487">14.4</td><td class="num" data-om-id="b9cf6ab4:488">259.5</td><td class="num" data-om-id="b9cf6ab4:489">7.467</td></tr>
+          <tr class="us" data-om-id="b9cf6ab4:484"><td data-om-id="b9cf6ab4:485">Chesslib</td><td class="num" data-om-id="b9cf6ab4:486">1.5</td><td class="num" data-om-id="b9cf6ab4:487">14.4</td><td class="num" data-om-id="b9cf6ab4:488">259.5</td><td class="num" data-om-id="b9cf6ab4:489">7.467</td></tr>
           <tr data-om-id="b9cf6ab4:490"><td data-om-id="b9cf6ab4:491">chess</td><td class="num" data-om-id="b9cf6ab4:492">1.2</td><td class="num" data-om-id="b9cf6ab4:493">11.9</td><td class="num" data-om-id="b9cf6ab4:494">241.9</td><td class="num" data-om-id="b9cf6ab4:495">6.251</td></tr>
           <tr data-om-id="b9cf6ab4:496"><td data-om-id="b9cf6ab4:497">shakmaty</td><td class="num" data-om-id="b9cf6ab4:498">1.6</td><td class="num" data-om-id="b9cf6ab4:499">15.8</td><td class="num" data-om-id="b9cf6ab4:500">350.2</td><td class="num" data-om-id="b9cf6ab4:501">9.318</td></tr>
           <tr data-om-id="b9cf6ab4:502"><td data-om-id="b9cf6ab4:503">Stockfish via UCI</td><td class="num" data-om-id="b9cf6ab4:504">161.4</td><td class="num" data-om-id="b9cf6ab4:505">173.8</td><td class="num" data-om-id="b9cf6ab4:506">500.9</td><td class="num" data-om-id="b9cf6ab4:507">9.974</td></tr>
-          <tr data-om-id="b9cf6ab4:508"><td data-om-id="b9cf6ab4:509">ChessLib-Simple</td><td class="num" data-om-id="b9cf6ab4:510">23.3</td><td class="num" data-om-id="b9cf6ab4:511">N/A</td><td class="num" data-om-id="b9cf6ab4:512">N/A</td><td class="num" data-om-id="b9cf6ab4:513">N/A</td></tr>
+          <tr data-om-id="b9cf6ab4:508"><td data-om-id="b9cf6ab4:509">Chesslib-Simple</td><td class="num" data-om-id="b9cf6ab4:510">23.3</td><td class="num" data-om-id="b9cf6ab4:511">N/A</td><td class="num" data-om-id="b9cf6ab4:512">N/A</td><td class="num" data-om-id="b9cf6ab4:513">N/A</td></tr>
           <tr data-om-id="b9cf6ab4:514"><td data-om-id="b9cf6ab4:515">python-chess</td><td class="num" data-om-id="b9cf6ab4:516">235.0</td><td class="num" data-om-id="b9cf6ab4:517">N/A</td><td class="num" data-om-id="b9cf6ab4:518">N/A</td><td class="num" data-om-id="b9cf6ab4:519">N/A</td></tr>
         </tbody>
       </table>
-      <div class="table-caption" data-om-id="b9cf6ab4:520">Tabela III: Perft na posição inicial. ChessLib em destaque.</div>
+      <div class="table-caption" data-om-id="b9cf6ab4:520">Tabela III: Perft na posição inicial. Chesslib em destaque.</div>
 
       <div class="stat-grid" style="margin-top:24px;" data-om-id="b9cf6ab4:521">
         <div class="stat" data-om-id="b9cf6ab4:522">
           <span class="num" data-om-id="b9cf6ab4:523">15.5×</span>
-          <div class="lbl" data-om-id="b9cf6ab4:524">vs. ChessLib-Simple (d = 4)</div>
+          <div class="lbl" data-om-id="b9cf6ab4:524">vs. Chesslib-Simple (d = 4)</div>
         </div>
         <div class="stat" data-om-id="b9cf6ab4:525">
           <span class="num" data-om-id="b9cf6ab4:526">156×</span>
@@ -1341,13 +1502,13 @@
 
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:537">
-      <span class="left" data-om-id="b9cf6ab4:538"><strong data-om-id="b9cf6ab4:539">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
-      <span class="right" data-om-id="b9cf6ab4:540">10</span>
+      <span class="left" data-om-id="b9cf6ab4:538"><strong data-om-id="b9cf6ab4:539">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:540">11</span>
     </div>
   </section>
 
   <!-- ============ 14. DISCUSSÃO E CONCLUSÃO ============ -->
-  <section data-screen-label="11 Discussão e Conclusão" data-om-id="b9cf6ab4:541" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="12">
+  <section data-screen-label="12 Discussão e Conclusão" data-om-id="b9cf6ab4:541" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="12">
     <div class="chrome-top" data-om-id="b9cf6ab4:542">
       <div class="logos-left" data-om-id="b9cf6ab4:543">
         <img src="assets/pet-eletrica.png" alt="" data-om-id="b9cf6ab4:544">
@@ -1364,14 +1525,14 @@
       <div class="tile-row" data-om-id="b9cf6ab4:552">
         <div class="tile" data-om-id="b9cf6ab4:553">
           <h4 data-om-id="b9cf6ab4:554">Impacto das escolhas estruturais</h4>
-          <p data-om-id="b9cf6ab4:555">O contraste <strong data-om-id="b9cf6ab4:556">1.5 ms</strong> (ChessLib) vs. <strong data-om-id="b9cf6ab4:557">23.3 ms</strong> (ChessLib-Simple)
+          <p data-om-id="b9cf6ab4:555">O contraste <strong data-om-id="b9cf6ab4:556">1.5 ms</strong> (Chesslib) vs. <strong data-om-id="b9cf6ab4:557">23.3 ms</strong> (Chesslib-Simple)
           vs. <strong data-om-id="b9cf6ab4:558">235.0 ms</strong> (python-chess) mostra que o ganho dos bitboards é estrutural,
           não marginal.</p>
         </div>
         <div class="tile" data-om-id="b9cf6ab4:559">
           <h4 data-om-id="b9cf6ab4:560">Plataforma para engines de terceiros</h4>
           <p data-om-id="b9cf6ab4:561">Apesar da <strong>leve perda de performance</strong> em relação à crate
-          <strong data-om-id="b9cf6ab4:562">chess</strong>, a ChessLib entrega <strong data-om-id="b9cf6ab4:563">Zobrist hash</strong>
+          <strong data-om-id="b9cf6ab4:562">chess</strong>, a Chesslib entrega <strong data-om-id="b9cf6ab4:563">Zobrist hash</strong>
           e uma <strong>estrutura completa para integração com <span data-om-id="b9cf6ab4:565">UCI</span></strong>,
           permitindo que terceiros construam suas próprias engines acopladas diretamente à nossa biblioteca.</p>
         </div>
@@ -1382,13 +1543,13 @@
       </p>
     </div>
     <div class="chrome-bottom" data-om-id="b9cf6ab4:568">
-      <span class="left" data-om-id="b9cf6ab4:569"><strong data-om-id="b9cf6ab4:570">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; ChessLib - Gerador de lances em Rust</span>
-      <span class="right" data-om-id="b9cf6ab4:571">11</span>
+      <span class="left" data-om-id="b9cf6ab4:569"><strong data-om-id="b9cf6ab4:570">XXIII CEEL · 2026</strong> &nbsp;·&nbsp; Chesslib - Gerador de lances em Rust</span>
+      <span class="right" data-om-id="b9cf6ab4:571">12</span>
     </div>
   </section>
 
   <!-- ============ 15. OBRIGADO ============ -->
-  <section data-screen-label="12 Obrigado" data-om-id="b9cf6ab4:572" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="13" data-deck-last-visible="">
+  <section data-screen-label="13 Obrigado" data-om-id="b9cf6ab4:572" data-om-validate="no_overflowing_text,no_overlapping_text,slide_sized_text" data-deck-slide="13" data-deck-last-visible="">
     <div class="closing" data-om-id="b9cf6ab4:573">
       <h1 data-om-id="b9cf6ab4:574">Obrigado.</h1>
       <div class="rule" data-om-id="b9cf6ab4:575"></div>
@@ -1398,7 +1559,6 @@
         <strong data-om-id="b9cf6ab4:579">Augusto W. F. Veloso da Silveira</strong><br data-om-id="b9cf6ab4:580">
         <span style="font-style:italic; color:var(--muted);" data-om-id="b9cf6ab4:581">Faculdade de Engenharia Elétrica, Universidade Federal de Uberlândia</span>
       </div>
-      <div class="repo" data-om-id="b9cf6ab4:582">github.com/…/chesslib</div>
       <div class="meta" style="margin-top:32px; font-size:24px; color:var(--muted); font-style:italic;" data-om-id="b9cf6ab4:583">
         Referências completas no artigo · XXIII CEEL · 2026
       </div>
@@ -1860,7 +2020,43 @@
     buildBitboardDemo();
     buildPassoTrio();
     buildSlidingDemo();
+    buildMagicIntro();
     buildMagicPipeline();
+  }
+
+  // === SLIDE 07: Magic bitboard intro (binary hash + mini-board) ===
+  function buildMagicIntro(){
+    // Render binary rows: 8 groups of 8 bits with each '1' wrapped in <b>
+    document.querySelectorAll('.mb-bits[data-bits]').forEach(el => {
+      const bits = el.dataset.bits || '';
+      if(bits.length !== 64) return;
+      const groups = [];
+      for(let i = 0; i < 64; i += 8){
+        const grp = bits.slice(i, i+8).split('').map(c => c === '1' ? '<b>1</b>' : '0').join('');
+        groups.push(grp);
+      }
+      el.innerHTML = groups.join(' ');
+    });
+
+    // Mini board: rook on d4 with blockers on d6 and f4
+    const board = document.getElementById('mb-board');
+    if(!board) return;
+    const rookSq = 'd4';
+    const blockerSet = new Set(['d6','f4']);
+    const attackSquares = slidingAtks(rookSq, ROOK_DIRS, blockerSet);
+    for(let r = 1; r <= 8; r++){
+      for(let c = 1; c <= 8; c++){
+        const cell = document.createElement('div');
+        const isAlt = ((c + r) % 2 === 0);
+        let cls = 'c' + (isAlt ? ' alt' : '');
+        const s = squareAt(c, 9 - r);
+        if(rookSq === s) cls += ' rook';
+        else if(blockerSet.has(s)) cls += ' blk';
+        else if(attackSquares.includes(s)) cls += ' atk';
+        cell.className = cls;
+        board.appendChild(cell);
+      }
+    }
   }
 
   // === SLIDE 10: Magic bitboard pipeline visualization ===
